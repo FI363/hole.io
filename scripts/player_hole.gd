@@ -24,6 +24,7 @@ var current_velocity: Vector3 = Vector3.ZERO
 var target_radius: float = 1.25
 
 var _hole_cutout: CSGCylinder3D = null
+var _submerging_collectibles: Array[Collectible] = []
 
 @onready var visuals: Node3D = $Visuals
 @onready var wake_area: Area3D = $WakeArea
@@ -38,6 +39,7 @@ func _ready() -> void:
 
 	if swallow_area:
 		swallow_area.body_entered.connect(_on_swallow_area_body_entered)
+		swallow_area.body_exited.connect(_on_swallow_area_body_exited)
 
 func _find_hole_cutout() -> void:
 	if not hole_cutout_path.is_empty():
@@ -70,6 +72,9 @@ func _physics_process(delta: float) -> void:
 
 	# 4. Wake up nearby sleeping bodies so they respond to ground aperture
 	_wake_nearby_bodies()
+
+	# 5. Process submerging collectibles until they fully drop into the hole
+	_process_submerging_collectibles()
 
 func _sync_hole_geometry() -> void:
 	if not _hole_cutout:
@@ -111,15 +116,80 @@ func grow_hole(amount: float) -> void:
 
 func _on_swallow_area_body_entered(body: Node3D) -> void:
 	var col := body as Collectible
-	if col and not col.is_collected:
-		swallowed_count += 1
-		col.collect()
-		var growth: float = growth_per_item
-		if col.has_meta("growth_value"):
-			growth = float(col.get_meta("growth_value"))
-		grow_hole(growth)
-		_trigger_swallow_feedback()
-		item_swallowed.emit(col, swallowed_count)
+	if not col or col.is_collected:
+		return
+
+	if _is_fully_submerged(col):
+		_swallow_collectible(col)
+	else:
+		if not _submerging_collectibles.has(col):
+			_submerging_collectibles.append(col)
+
+func _on_swallow_area_body_exited(body: Node3D) -> void:
+	var col := body as Collectible
+	if col and _submerging_collectibles.has(col):
+		_submerging_collectibles.erase(col)
+
+func _process_submerging_collectibles() -> void:
+	var i := _submerging_collectibles.size() - 1
+	while i >= 0:
+		var col := _submerging_collectibles[i]
+		if not is_instance_valid(col) or col.is_collected:
+			_submerging_collectibles.remove_at(i)
+			i -= 1
+			continue
+
+		if _is_fully_submerged(col):
+			_submerging_collectibles.remove_at(i)
+			_swallow_collectible(col)
+		i -= 1
+
+func _is_fully_submerged(col: Collectible) -> bool:
+	var highest_y := _get_highest_y(col)
+	# An object is fully submerged once its top has passed below ground level (<= 0.2m)
+	if highest_y <= 0.2:
+		return true
+
+	# Deep abyss fallback: if the center of mass has plunged deep into the shaft (<= -6.0m)
+	if col.global_position.y <= -6.0:
+		return true
+
+	return false
+
+func _get_highest_y(col: Collectible) -> float:
+	var col_shape := col.get_node_or_null("CollisionShape3D") as CollisionShape3D
+	if not col_shape or not col_shape.shape:
+		return col.global_position.y
+
+	if col_shape.shape is BoxShape3D:
+		var box := col_shape.shape as BoxShape3D
+		var hx := box.size.x * 0.5
+		var hy := box.size.y * 0.5
+		var hz := box.size.z * 0.5
+		var b := col.global_transform.basis
+		var max_y_extent := absf(b.x.y) * hx + absf(b.y.y) * hy + absf(b.z.y) * hz
+		return col.global_position.y + max_y_extent
+	elif col_shape.shape is CylinderShape3D:
+		var cyl := col_shape.shape as CylinderShape3D
+		var hy := cyl.height * 0.5
+		var r := cyl.radius
+		var b := col.global_transform.basis
+		var max_y_extent := absf(b.y.y) * hy + sqrt(b.x.y * b.x.y + b.z.y * b.z.y) * r
+		return col.global_position.y + max_y_extent
+	else:
+		return col.global_position.y + 0.3
+
+func _swallow_collectible(col: Collectible) -> void:
+	if col.is_collected:
+		return
+	swallowed_count += 1
+	col.collect()
+	var growth: float = growth_per_item
+	if col.has_meta("growth_value"):
+		growth = float(col.get_meta("growth_value"))
+	grow_hole(growth)
+	_trigger_swallow_feedback()
+	item_swallowed.emit(col, swallowed_count)
 
 func _get_input_vector() -> Vector3:
 	var dir := Vector3.ZERO

@@ -12,7 +12,7 @@ material = SubResource("StandardMaterial3D_pit")
 flip_faces = true
 top_radius = 1.25
 bottom_radius = 1.15
-height = 6.0
+height = 24.0
 radial_segments = 48
 cap_top = false
 cap_bottom = true
@@ -37,7 +37,7 @@ height = 2.0
 radius = 2.45
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_swallow"]
-height = 1.6
+height = 16.0
 radius = 1.18
 
 [node name="PlayerHole" type="Node3D"]
@@ -46,7 +46,7 @@ script = ExtResource("1_player_hole")
 [node name="Visuals" type="Node3D" parent="."]
 
 [node name="VoidPit" type="MeshInstance3D" parent="Visuals"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -3.0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -12.0, 0)
 mesh = SubResource("CylinderMesh_pit")
 
 [node name="RimMesh" type="MeshInstance3D" parent="Visuals"]
@@ -66,5 +66,5 @@ collision_layer = 0
 collision_mask = 2
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="SwallowArea"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -3.2, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -10.0, 0)
 shape = SubResource("CylinderShape3D_swallow")

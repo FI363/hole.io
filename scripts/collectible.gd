@@ -104,6 +104,13 @@ func setup_model(model_scene: PackedScene, p_scale: float = 1.0, p_mass: float =
 	else:
 		mass = maxf(1.5, combined_aabb.size.x * combined_aabb.size.y * combined_aabb.size.z * 0.7)
 
+	if combined_aabb.size.y > 2.5:
+		# Stabilize tall structures with a grounded center of mass and angular damping
+		# (prevents unnatural pencil-toppling and ensures smooth vertical descent down the hole)
+		center_of_mass_mode = RigidBody3D.CENTER_OF_MASS_MODE_CUSTOM
+		center_of_mass = Vector3(0.0, -combined_aabb.size.y * 0.3, 0.0)
+		angular_damp = 3.5
+
 func _get_combined_aabb(node: Node3D) -> AABB:
 	var total_aabb: AABB = AABB()
 	var has_aabb := false
