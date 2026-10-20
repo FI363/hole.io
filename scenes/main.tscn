@@ -35,6 +35,10 @@ albedo_color = Color(0.88, 0.90, 0.92, 1)
 metallic = 0.1
 roughness = 0.4
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hole_interior"]
+shading_mode = 0
+albedo_color = Color(0.012, 0.015, 0.02, 1)
+
 [sub_resource type="BoxMesh" id="BoxMesh_wall_ns"]
 material = SubResource("StandardMaterial3D_curb")
 size = Vector3(41.6, 1.2, 0.8)
@@ -134,7 +138,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2, 0)
 operation = 2
 radius = 1.25
 height = 8.0
-sides = 24
+sides = 48
+material = SubResource("StandardMaterial3D_hole_interior")
 
 [node name="WallNorth" type="StaticBody3D" parent="Arena" unique_id=1566284261]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, -20.4)

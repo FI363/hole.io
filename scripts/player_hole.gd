@@ -22,7 +22,6 @@ signal hole_grown(new_radius: float)
 var swallowed_count: int = 0
 var current_velocity: Vector3 = Vector3.ZERO
 var target_radius: float = 1.25
-var _gulp_multiplier: float = 1.0
 
 var _hole_cutout: CSGCylinder3D = null
 
@@ -92,7 +91,7 @@ func _wake_nearby_bodies() -> void:
 			rb.sleeping = false
 
 func _sync_visuals_and_areas() -> void:
-	var scale_factor: float = (hole_radius / 1.25) * _gulp_multiplier
+	var scale_factor: float = hole_radius / 1.25
 
 	if visuals:
 		visuals.scale = Vector3(scale_factor, 1.0, scale_factor)
@@ -116,7 +115,7 @@ func _on_swallow_area_body_entered(body: Node3D) -> void:
 		swallowed_count += 1
 		col.collect()
 		grow_hole(growth_per_item)
-		_trigger_gulp_animation()
+		_trigger_swallow_feedback()
 		item_swallowed.emit(col, swallowed_count)
 
 func _get_input_vector() -> Vector3:
@@ -134,7 +133,11 @@ func _get_input_vector() -> Vector3:
 		dir = dir.normalized()
 	return dir
 
-func _trigger_gulp_animation() -> void:
-	_gulp_multiplier = 1.12
-	var tween := create_tween()
-	tween.tween_property(self, "_gulp_multiplier", 1.0, 0.16).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+func _trigger_swallow_feedback() -> void:
+	# Subtle vertical dip on the rim without any horizontal scaling or flashing
+	var rim := get_node_or_null("Visuals/RimMesh") as Node3D
+	if rim:
+		var orig_y := 0.045
+		var tween := create_tween()
+		tween.tween_property(rim, "position:y", orig_y - 0.015, 0.08).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		tween.tween_property(rim, "position:y", orig_y, 0.12).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
