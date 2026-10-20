@@ -39,19 +39,23 @@ roughness = 0.4
 shading_mode = 0
 albedo_color = Color(0.012, 0.015, 0.02, 1)
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pavement"]
+albedo_color = Color(0.70, 0.72, 0.75, 1)
+roughness = 0.8
+
 [sub_resource type="BoxMesh" id="BoxMesh_wall_ns"]
 material = SubResource("StandardMaterial3D_curb")
-size = Vector3(57.6, 1.2, 0.8)
+size = Vector3(91.6, 1.2, 0.8)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_wall_ns"]
-size = Vector3(57.6, 1.2, 0.8)
+size = Vector3(91.6, 1.2, 0.8)
 
 [sub_resource type="BoxMesh" id="BoxMesh_wall_ew"]
 material = SubResource("StandardMaterial3D_curb")
-size = Vector3(0.8, 1.2, 57.6)
+size = Vector3(0.8, 1.2, 91.6)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_wall_ew"]
-size = Vector3(0.8, 1.2, 57.6)
+size = Vector3(0.8, 1.2, 91.6)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_score_panel"]
 content_margin_left = 20.0
@@ -100,38 +104,63 @@ use_collision = true
 
 [node name="Floor" type="CSGBox3D" parent="Arena/Ground" unique_id=1994061473]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2, 0)
-size = Vector3(56, 4, 56)
+size = Vector3(90, 4, 90)
 material = SubResource("StandardMaterial3D_ground")
 
 [node name="RoadMainEW" type="CSGBox3D" parent="Arena/Ground"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.996, 0)
-size = Vector3(56, 4.008, 6)
+size = Vector3(90, 4.008, 8)
 material = SubResource("StandardMaterial3D_road")
 
 [node name="RoadMainNS" type="CSGBox3D" parent="Arena/Ground"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.996, 0)
-size = Vector3(6, 4.008, 56)
+size = Vector3(8, 4.008, 90)
 material = SubResource("StandardMaterial3D_road")
 
 [node name="RoadNorth" type="CSGBox3D" parent="Arena/Ground"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.996, -14)
-size = Vector3(56, 4.008, 4.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.996, -24)
+size = Vector3(90, 4.008, 6)
 material = SubResource("StandardMaterial3D_road")
 
 [node name="RoadSouth" type="CSGBox3D" parent="Arena/Ground"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.996, 14)
-size = Vector3(56, 4.008, 4.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.996, 24)
+size = Vector3(90, 4.008, 6)
 material = SubResource("StandardMaterial3D_road")
 
 [node name="RoadWest" type="CSGBox3D" parent="Arena/Ground"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, -1.996, 0)
-size = Vector3(4.5, 4.008, 56)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -24, -1.996, 0)
+size = Vector3(6, 4.008, 90)
 material = SubResource("StandardMaterial3D_road")
 
 [node name="RoadEast" type="CSGBox3D" parent="Arena/Ground"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, -1.996, 0)
-size = Vector3(4.5, 4.008, 56)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, -1.996, 0)
+size = Vector3(6, 4.008, 90)
 material = SubResource("StandardMaterial3D_road")
+
+[node name="PlazaDowntown" type="CSGBox3D" parent="Arena/Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 33, -1.994, 33)
+size = Vector3(16, 4.012, 16)
+material = SubResource("StandardMaterial3D_pavement")
+
+[node name="PlazaIndustrial" type="CSGBox3D" parent="Arena/Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 33, -1.994, -33)
+size = Vector3(16, 4.012, 16)
+material = SubResource("StandardMaterial3D_pavement")
+
+[node name="PlazaSuburban" type="CSGBox3D" parent="Arena/Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -33, -1.994, -33)
+size = Vector3(16, 4.012, 16)
+material = SubResource("StandardMaterial3D_pavement")
+
+[node name="PlazaMidtown" type="CSGBox3D" parent="Arena/Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.994, 33)
+size = Vector3(16, 4.012, 16)
+material = SubResource("StandardMaterial3D_pavement")
+
+[node name="PlazaCivic" type="CSGBox3D" parent="Arena/Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.994, -33)
+size = Vector3(16, 4.012, 16)
+material = SubResource("StandardMaterial3D_pavement")
 
 [node name="HoleCutout" type="CSGCylinder3D" parent="Arena/Ground" unique_id=1933069145]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2, 0)
@@ -142,7 +171,7 @@ sides = 48
 material = SubResource("StandardMaterial3D_hole_interior")
 
 [node name="WallNorth" type="StaticBody3D" parent="Arena" unique_id=1566284261]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, -28.4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, -45.4)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Arena/WallNorth" unique_id=26316657]
 mesh = SubResource("BoxMesh_wall_ns")
@@ -151,7 +180,7 @@ mesh = SubResource("BoxMesh_wall_ns")
 shape = SubResource("BoxShape3D_wall_ns")
 
 [node name="WallSouth" type="StaticBody3D" parent="Arena" unique_id=1933911850]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 28.4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 45.4)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Arena/WallSouth" unique_id=668928481]
 mesh = SubResource("BoxMesh_wall_ns")
@@ -160,7 +189,7 @@ mesh = SubResource("BoxMesh_wall_ns")
 shape = SubResource("BoxShape3D_wall_ns")
 
 [node name="WallWest" type="StaticBody3D" parent="Arena" unique_id=680042253]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -28.4, 0.6, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -45.4, 0.6, 0)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Arena/WallWest" unique_id=888771336]
 mesh = SubResource("BoxMesh_wall_ew")
@@ -169,7 +198,7 @@ mesh = SubResource("BoxMesh_wall_ew")
 shape = SubResource("BoxShape3D_wall_ew")
 
 [node name="WallEast" type="StaticBody3D" parent="Arena" unique_id=1659510323]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28.4, 0.6, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 45.4, 0.6, 0)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Arena/WallEast" unique_id=1961117164]
 mesh = SubResource("BoxMesh_wall_ew")

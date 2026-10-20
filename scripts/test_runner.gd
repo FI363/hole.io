@@ -165,6 +165,53 @@ func _run_full_suite() -> void:
 
 	print(">>> PASS: Test 4 verified - Street truck swallowed after hole growth.")
 
+	# -------------------------------------------------------------
+	# TEST 5 — Skyscraper Physical Fall & Submerged Swallowing
+	# -------------------------------------------------------------
+	print("\n--- TEST 5: Skyscraper Physical Fall & Submerged Swallowing ---")
+	var skyscraper: Collectible = null
+	for obj in collectibles_container.get_children():
+		var col := obj as Collectible
+		if col and is_instance_valid(col):
+			var cs := col.get_node_or_null("CollisionShape3D") as CollisionShape3D
+			if cs and cs.shape is BoxShape3D:
+				var bs := cs.shape as BoxShape3D
+				if bs.size.y > 6.0:
+					skyscraper = col
+					break
+
+	if not skyscraper:
+		printerr("FAIL: Test 5 - Could not find skyscraper model in collectibles")
+		quit(1)
+		return
+
+	var sky_pos := skyscraper.global_position
+	print("Found skyscraper at %s (height > 6m). Growing hole to radius 6.0..." % sky_pos)
+	player.hole_radius = 6.0
+	player.target_radius = 6.0
+	player.global_position = Vector3(sky_pos.x, 0.0, sky_pos.z)
+	player._sync_hole_geometry()
+	player._wake_nearby_bodies()
+	skyscraper.sleeping = false
+
+	var fell_downwards := false
+	var swallowed_deep := false
+
+	for f in range(120):
+		await physics_frame
+		if not is_instance_valid(skyscraper) or skyscraper.is_collected:
+			swallowed_deep = true
+			break
+		if skyscraper.global_position.y < -0.5:
+			fell_downwards = true
+
+	if not fell_downwards and not swallowed_deep:
+		printerr("FAIL: Test 5 - Skyscraper did not fall down into the void pit: %s" % (skyscraper.global_position if is_instance_valid(skyscraper) else "null"))
+		quit(1)
+		return
+
+	print(">>> PASS: Test 5 verified - Skyscraper physically fell into void pit and submerged before collection.")
+
 	print("\n=====================================================================")
 	print("       ALL CITY MAP PHYSICS TESTS PASSED WITH 100% SUCCESS!          ")
 	print("=====================================================================")

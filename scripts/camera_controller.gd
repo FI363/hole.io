@@ -23,8 +23,8 @@ func _physics_process(delta: float) -> void:
 	var current_offset := base_offset
 	var hole := target as PlayerHole
 	if hole:
-		var growth_ratio: float = clampf(hole.hole_radius / 1.25, 1.0, 4.0)
-		current_offset = base_offset * (0.8 + 0.3 * growth_ratio)
+		var growth_ratio: float = clampf(hole.hole_radius / 1.25, 1.0, 6.0)
+		current_offset = base_offset * (0.75 + 0.3 * growth_ratio)
 
 	var desired_pos := target.global_position + current_offset
 	global_position = global_position.lerp(desired_pos, smooth_speed * delta)
