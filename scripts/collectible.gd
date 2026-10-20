@@ -61,6 +61,13 @@ func setup_custom(shape: String, color: Color, p_scale: float = 1.0, p_mass: flo
 	else:
 		mass = 1.0 * (p_scale * p_scale * p_scale)
 
+func setup_manhole(p_scale: float = 1.0) -> void:
+	shape_type = "manhole"
+	item_scale = p_scale
+	_ensure_nodes()
+	_apply_mesh_and_shape("manhole", Color(0.2, 0.22, 0.25), p_scale)
+	mass = 4.0
+
 ## Configures this collectible from a 3D model scene (GLB / GLTF)
 func setup_model(model_scene: PackedScene, p_scale: float = 1.0, p_mass: float = -1.0) -> void:
 	shape_type = "model"
@@ -186,6 +193,23 @@ func _apply_mesh_and_shape(shape: String, color: Color, p_scale: float) -> void:
 			var p_shape := BoxShape3D.new()
 			p_shape.size = Vector3(1.0, 1.0, 1.0) * p_scale
 			shape_3d = p_shape
+
+		"manhole":
+			var mh_mesh := CylinderMesh.new()
+			mh_mesh.top_radius = 0.42 * p_scale
+			mh_mesh.bottom_radius = 0.40 * p_scale
+			mh_mesh.height = 0.05 * p_scale
+			var mh_mat := StandardMaterial3D.new()
+			mh_mat.albedo_color = Color(0.18, 0.20, 0.23, 1)
+			mh_mat.metallic = 0.8
+			mh_mat.roughness = 0.55
+			mh_mesh.material = mh_mat
+			mesh = mh_mesh
+
+			var mh_shape := CylinderShape3D.new()
+			mh_shape.radius = 0.42 * p_scale
+			mh_shape.height = 0.05 * p_scale
+			shape_3d = mh_shape
 
 		_:
 			var def_mesh := BoxMesh.new()

@@ -10,11 +10,11 @@ signal hole_grown(new_radius: float)
 @export var speed: float = 10.0
 @export var acceleration: float = 16.0
 @export var friction: float = 14.0
-@export var arena_boundary_limit: float = 18.0
+@export var arena_boundary_limit: float = 26.5
 
 @export var hole_radius: float = 1.25
 @export var growth_per_item: float = 0.04
-@export var max_hole_radius: float = 4.0
+@export var max_hole_radius: float = 7.5
 @export var growth_speed: float = 2.5
 
 @export var hole_cutout_path: NodePath = NodePath("../Arena/Ground/HoleCutout")
@@ -114,7 +114,10 @@ func _on_swallow_area_body_entered(body: Node3D) -> void:
 	if col and not col.is_collected:
 		swallowed_count += 1
 		col.collect()
-		grow_hole(growth_per_item)
+		var growth: float = growth_per_item
+		if col.has_meta("growth_value"):
+			growth = float(col.get_meta("growth_value"))
+		grow_hole(growth)
 		_trigger_swallow_feedback()
 		item_swallowed.emit(col, swallowed_count)
 
