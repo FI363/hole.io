@@ -22,6 +22,7 @@ signal hole_grown(new_radius: float)
 var swallowed_count: int = 0
 var current_velocity: Vector3 = Vector3.ZERO
 var target_radius: float = 1.25
+var _gulp_multiplier: float = 1.0
 
 var _hole_cutout: CSGCylinder3D = null
 
@@ -62,10 +63,10 @@ func _physics_process(delta: float) -> void:
 	# 2. Process smooth growth interpolation
 	if absf(hole_radius - target_radius) > 0.001:
 		hole_radius = move_toward(hole_radius, target_radius, growth_speed * delta)
-		_sync_visuals_and_areas()
 		hole_grown.emit(hole_radius)
 
-	# 3. Synchronize CSG physical hole aperture in real time
+	# 3. Synchronize visuals, areas, and CSG physical aperture every frame
+	_sync_visuals_and_areas()
 	_sync_hole_geometry()
 
 	# 4. Wake up nearby sleeping bodies so they respond to ground aperture
@@ -91,7 +92,7 @@ func _wake_nearby_bodies() -> void:
 			rb.sleeping = false
 
 func _sync_visuals_and_areas() -> void:
-	var scale_factor: float = hole_radius / 1.25
+	var scale_factor: float = (hole_radius / 1.25) * _gulp_multiplier
 
 	if visuals:
 		visuals.scale = Vector3(scale_factor, 1.0, scale_factor)
@@ -134,9 +135,6 @@ func _get_input_vector() -> Vector3:
 	return dir
 
 func _trigger_gulp_animation() -> void:
-	if not visuals:
-		return
-	var base_scale := visuals.scale
+	_gulp_multiplier = 1.12
 	var tween := create_tween()
-	tween.tween_property(visuals, "scale", base_scale * Vector3(1.15, 0.90, 1.15), 0.08).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	tween.tween_property(visuals, "scale", base_scale, 0.12).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.tween_property(self, "_gulp_multiplier", 1.0, 0.16).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
