@@ -1,0 +1,239 @@
+[gd_scene format=3 uid="uid://bnd1gjes8p8ij"]
+
+[ext_resource type="Script" uid="uid://cufodk34bqlm2" path="res://scripts/main.gd" id="1_main"]
+[ext_resource type="PackedScene" path="res://scenes/player_hole.tscn" id="2_player_hole"]
+[ext_resource type="Script" uid="uid://b7gjg2rhq5q5m" path="res://scripts/camera_controller.gd" id="3_camera"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
+sky_top_color = Color(0.35, 0.65, 0.98, 1)
+sky_horizon_color = Color(0.70, 0.85, 0.98, 1)
+ground_bottom_color = Color(0.18, 0.22, 0.26, 1)
+ground_horizon_color = Color(0.65, 0.78, 0.88, 1)
+
+[sub_resource type="Sky" id="Sky_env"]
+sky_material = SubResource("ProceduralSkyMaterial_sky")
+
+[sub_resource type="Environment" id="Environment_main"]
+background_mode = 2
+sky = SubResource("Sky_env")
+ambient_light_source = 2
+ambient_light_color = Color(0.75, 0.82, 0.90, 1)
+ambient_light_energy = 0.65
+tonemap_mode = 2
+tonemap_exposure = 1.05
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ground"]
+albedo_color = Color(0.36, 0.66, 0.42, 1)
+roughness = 0.85
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_road"]
+albedo_color = Color(0.20, 0.22, 0.25, 1)
+roughness = 0.75
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_curb"]
+albedo_color = Color(0.88, 0.90, 0.92, 1)
+metallic = 0.1
+roughness = 0.4
+
+[sub_resource type="BoxMesh" id="BoxMesh_wall_ns"]
+material = SubResource("StandardMaterial3D_curb")
+size = Vector3(41.6, 1.2, 0.8)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_wall_ns"]
+size = Vector3(41.6, 1.2, 0.8)
+
+[sub_resource type="BoxMesh" id="BoxMesh_wall_ew"]
+material = SubResource("StandardMaterial3D_curb")
+size = Vector3(0.8, 1.2, 41.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_wall_ew"]
+size = Vector3(0.8, 1.2, 41.6)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_score_panel"]
+content_margin_left = 20.0
+content_margin_top = 8.0
+content_margin_right = 20.0
+content_margin_bottom = 8.0
+bg_color = Color(0.08, 0.11, 0.16, 0.85)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[sub_resource type="LabelSettings" id="LabelSettings_score"]
+font_size = 20
+outline_size = 2
+outline_color = Color(0, 0, 0, 0.5)
+
+[sub_resource type="LabelSettings" id="LabelSettings_controls"]
+font_size = 14
+font_color = Color(0.9, 0.95, 1, 0.85)
+outline_size = 2
+outline_color = Color(0, 0, 0, 0.6)
+
+[sub_resource type="LabelSettings" id="LabelSettings_banner"]
+font_size = 32
+font_color = Color(1, 0.88, 0.2, 1)
+outline_size = 6
+outline_color = Color(0.05, 0.05, 0.08, 0.9)
+
+[node name="Main" type="Node3D" unique_id=921104500]
+script = ExtResource("1_main")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1885825012]
+environment = SubResource("Environment_main")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1514754479]
+transform = Transform3D(0.819152, -0.395729, 0.414438, 0, 0.723019, 0.690827, -0.573576, -0.565893, 0.592262, 0, 18, 0)
+light_color = Color(1, 0.97, 0.92, 1)
+light_energy = 1.2
+shadow_enabled = true
+
+[node name="Arena" type="Node3D" parent="." unique_id=2121692876]
+
+[node name="Ground" type="CSGCombiner3D" parent="Arena" unique_id=1527462369]
+use_collision = true
+
+[node name="Floor" type="CSGBox3D" parent="Arena/Ground" unique_id=1994061473]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2, 0)
+size = Vector3(40, 4, 40)
+material = SubResource("StandardMaterial3D_ground")
+
+[node name="RoadMainEW" type="CSGBox3D" parent="Arena/Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.996, 0)
+size = Vector3(40, 4.008, 5)
+material = SubResource("StandardMaterial3D_road")
+
+[node name="RoadMainNS" type="CSGBox3D" parent="Arena/Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.996, 0)
+size = Vector3(5, 4.008, 40)
+material = SubResource("StandardMaterial3D_road")
+
+[node name="RoadNorth" type="CSGBox3D" parent="Arena/Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.996, -10.5)
+size = Vector3(40, 4.008, 4)
+material = SubResource("StandardMaterial3D_road")
+
+[node name="RoadSouth" type="CSGBox3D" parent="Arena/Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.996, 10.5)
+size = Vector3(40, 4.008, 4)
+material = SubResource("StandardMaterial3D_road")
+
+[node name="RoadWest" type="CSGBox3D" parent="Arena/Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.5, -1.996, 0)
+size = Vector3(4, 4.008, 40)
+material = SubResource("StandardMaterial3D_road")
+
+[node name="RoadEast" type="CSGBox3D" parent="Arena/Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.5, -1.996, 0)
+size = Vector3(4, 4.008, 40)
+material = SubResource("StandardMaterial3D_road")
+
+[node name="HoleCutout" type="CSGCylinder3D" parent="Arena/Ground" unique_id=1933069145]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2, 0)
+operation = 2
+radius = 1.25
+height = 8.0
+sides = 24
+
+[node name="WallNorth" type="StaticBody3D" parent="Arena" unique_id=1566284261]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, -20.4)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Arena/WallNorth" unique_id=26316657]
+mesh = SubResource("BoxMesh_wall_ns")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Arena/WallNorth" unique_id=562425619]
+shape = SubResource("BoxShape3D_wall_ns")
+
+[node name="WallSouth" type="StaticBody3D" parent="Arena" unique_id=1933911850]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 20.4)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Arena/WallSouth" unique_id=668928481]
+mesh = SubResource("BoxMesh_wall_ns")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Arena/WallSouth" unique_id=878318558]
+shape = SubResource("BoxShape3D_wall_ns")
+
+[node name="WallWest" type="StaticBody3D" parent="Arena" unique_id=680042253]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20.4, 0.6, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Arena/WallWest" unique_id=888771336]
+mesh = SubResource("BoxMesh_wall_ew")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Arena/WallWest" unique_id=487167882]
+shape = SubResource("BoxShape3D_wall_ew")
+
+[node name="WallEast" type="StaticBody3D" parent="Arena" unique_id=1659510323]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20.4, 0.6, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Arena/WallEast" unique_id=1961117164]
+mesh = SubResource("BoxMesh_wall_ew")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Arena/WallEast" unique_id=1886901373]
+shape = SubResource("BoxShape3D_wall_ew")
+
+[node name="Collectibles" type="Node3D" parent="." unique_id=1613030718]
+
+[node name="PlayerHole" parent="." unique_id=309189496 instance=ExtResource("2_player_hole")]
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=643533949]
+transform = Transform3D(1, 0, 0, 0, 0.615661, 0.788011, 0, -0.788011, 0.615661, 0, 18, 14)
+current = true
+fov = 55.0
+script = ExtResource("3_camera")
+
+[node name="HUD" type="CanvasLayer" parent="." unique_id=1591493011]
+
+[node name="ScorePanel" type="PanelContainer" parent="HUD" unique_id=372961140]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -170.0
+offset_top = 20.0
+offset_right = 170.0
+offset_bottom = 62.0
+grow_horizontal = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_score_panel")
+
+[node name="ScoreLabel" type="Label" parent="HUD/ScorePanel" unique_id=950634269]
+layout_mode = 2
+text = "City Swallowed: 0 / 30  |  Hole Radius: 1.25"
+label_settings = SubResource("LabelSettings_score")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ControlsLabel" type="Label" parent="HUD" unique_id=223844700]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -220.0
+offset_top = -45.0
+offset_right = 220.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "WASD / Arrow Keys: Move  •  Press 'R' to Reset"
+label_settings = SubResource("LabelSettings_controls")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BannerLabel" type="Label" parent="HUD" unique_id=1051913711]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -280.0
+offset_top = -50.0
+offset_right = 280.0
+offset_bottom = 50.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "★ THE ENTIRE CITY HAS BEEN CONSUMED! ★
+Press 'R' to Restart"
+label_settings = SubResource("LabelSettings_banner")
+horizontal_alignment = 1
+vertical_alignment = 1
