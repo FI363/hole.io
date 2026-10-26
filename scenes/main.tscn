@@ -102,17 +102,17 @@ size = Vector3(18, 0.02, 18)
 
 [sub_resource type="BoxMesh" id="BoxMesh_wall_ns"]
 material = SubResource("StandardMaterial3D_curb")
-size = Vector3(175, 1.2, 0.8)
+size = Vector3(204, 1.2, 0.8)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_wall_ns"]
-size = Vector3(175, 1.2, 0.8)
+size = Vector3(204, 1.2, 0.8)
 
 [sub_resource type="BoxMesh" id="BoxMesh_wall_ew"]
 material = SubResource("StandardMaterial3D_curb")
-size = Vector3(0.8, 1.2, 74)
+size = Vector3(0.8, 1.2, 204)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_wall_ew"]
-size = Vector3(0.8, 1.2, 74)
+size = Vector3(0.8, 1.2, 204)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_score_panel"]
 content_margin_left = 20.0
@@ -161,7 +161,7 @@ use_collision = true
 
 [node name="Floor" type="CSGBox3D" parent="Arena/Ground" unique_id=1994061473]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2, 0)
-size = Vector3(180, 4, 80)
+size = Vector3(204, 4, 204)
 material = SubResource("StandardMaterial3D_ground")
 
 [node name="HoleCutout" type="CSGCylinder3D" parent="Arena/Ground" unique_id=1933069145]
@@ -175,7 +175,7 @@ material = SubResource("StandardMaterial3D_hole_interior")
 [node name="GroundDecorations" type="Node3D" parent="Arena"]
 
 [node name="WallNorth" type="StaticBody3D" parent="Arena" unique_id=1566284261]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, -36.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, -100.5)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Arena/WallNorth" unique_id=26316657]
 mesh = SubResource("BoxMesh_wall_ns")
@@ -184,7 +184,7 @@ mesh = SubResource("BoxMesh_wall_ns")
 shape = SubResource("BoxShape3D_wall_ns")
 
 [node name="WallSouth" type="StaticBody3D" parent="Arena" unique_id=1933911850]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 36.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 100.5)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Arena/WallSouth" unique_id=668928481]
 mesh = SubResource("BoxMesh_wall_ns")
@@ -193,7 +193,7 @@ mesh = SubResource("BoxMesh_wall_ns")
 shape = SubResource("BoxShape3D_wall_ns")
 
 [node name="WallWest" type="StaticBody3D" parent="Arena" unique_id=680042253]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -87.5, 0.6, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -100.5, 0.6, 0)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Arena/WallWest" unique_id=888771336]
 mesh = SubResource("BoxMesh_wall_ew")
@@ -202,7 +202,7 @@ mesh = SubResource("BoxMesh_wall_ew")
 shape = SubResource("BoxShape3D_wall_ew")
 
 [node name="WallEast" type="StaticBody3D" parent="Arena" unique_id=1659510323]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 87.5, 0.6, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 100.5, 0.6, 0)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Arena/WallEast" unique_id=1961117164]
 mesh = SubResource("BoxMesh_wall_ew")

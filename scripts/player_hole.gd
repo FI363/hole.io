@@ -11,8 +11,8 @@ signal hole_grown(new_radius: float)
 @export var acceleration: float = 16.0
 @export var friction: float = 14.0
 @export var arena_boundary_limit: float = 43.5
-@export var arena_boundary_x: float = 82.0
-@export var arena_boundary_z: float = 34.0
+@export var arena_boundary_x: float = 96.0
+@export var arena_boundary_z: float = 96.0
 
 @export var hole_radius: float = 1.25
 @export var growth_per_item: float = 0.04
