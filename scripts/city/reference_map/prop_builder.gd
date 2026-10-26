@@ -99,7 +99,12 @@ static func populate_all_props(collectibles_root: Node3D, player_hole: PlayerHol
 	_populate_suburban_props(collectibles_root)
 
 	# -------------------------------------------------------------
-	# 9. DOWNTOWN PROMENADE & STREET TRAFFIC
+	# 9. COMMERCIAL SHOPPING VEHICLES (Region B - Supermarket Lot)
+	# -------------------------------------------------------------
+	_populate_commercial_vehicles(collectibles_root)
+
+	# -------------------------------------------------------------
+	# 10. DOWNTOWN PROMENADE & STREET TRAFFIC
 	# -------------------------------------------------------------
 	_populate_downtown_props(collectibles_root)
 
@@ -271,7 +276,7 @@ static func _populate_seaport_props(root: Node3D) -> void:
 # -----------------------------------------------------------------
 static func _populate_central_park(root: Node3D) -> void:
 	var gazebo := _build_gazebo()
-	_spawn_procedural(root, gazebo, Vector3(-32.0, 0.0, -16.0), 0.0)
+	_spawn_procedural(root, gazebo, Vector3(-8.0, 0.0, -20.0), 0.0)
 
 	var park_trees: Array[Vector3] = [
 		Vector3(-34.0, 0.0, -36.0), Vector3(-20.0, 0.0, -36.0),
@@ -341,7 +346,7 @@ static func _populate_mountain_forest(root: Node3D) -> void:
 		_spawn_model(root, MODEL_TREE_PINE, pl, 2.2, randf() * TAU, 0.05)
 
 # -----------------------------------------------------------------
-# 8. SUBURBAN CARS & VEHICLES (Imported Car Models)
+# 8. SUBURBAN CARS & VEHICLES (Imported Car Models & Garden Trees)
 # -----------------------------------------------------------------
 static func _populate_suburban_props(root: Node3D) -> void:
 	var car_models: Array[PackedScene] = [MODEL_CAR_SEDAN, MODEL_CAR_SUV, MODEL_CAR_SPORTS, MODEL_CAR_TAXI]
@@ -349,11 +354,38 @@ static func _populate_suburban_props(root: Node3D) -> void:
 	var car_idx: int = 0
 	for z in street_z:
 		var car_m := car_models[car_idx % car_models.size()]
-		_spawn_model(root, car_m, Vector3(-82.0, 0.45, z), 1.1, 0.0, 0.08)
+		_spawn_model(root, car_m, Vector3(-85.5, 0.45, z), 1.1, 0.0, 0.08)
 		car_idx += 1
 
+	# Suburban backyard garden trees matching Image 1
+	var garden_trees: Array[Vector3] = [
+		Vector3(-72.5, 0.0, -13.0), Vector3(-66.0, 0.0, -13.0),
+		Vector3(-48.5, 0.0, -13.0), Vector3(-41.5, 0.0, -13.0),
+		Vector3(-72.5, 0.0, -32.0), Vector3(-48.5, 0.0, -32.0)
+	]
+	for gt in garden_trees:
+		_spawn_model(root, MODEL_TREE_OAK, gt, 1.8, randf() * TAU, 0.04)
+
 # -----------------------------------------------------------------
-# 9. DOWNTOWN PROMENADE & STREET TRAFFIC (Imported Cars & Benches)
+# 9. COMMERCIAL SHOPPING VEHICLES (Supermarket Lot - Image 5)
+# -----------------------------------------------------------------
+static func _populate_commercial_vehicles(root: Node3D) -> void:
+	var car_models: Array[PackedScene] = [MODEL_CAR_SEDAN, MODEL_CAR_SUV, MODEL_CAR_SPORTS, MODEL_CAR_TAXI, MODEL_CAR_VAN]
+	var stalls: Array[Dictionary] = [
+		{"pos": Vector3(8.0, 0.45, -52.0), "rot": 0.0},
+		{"pos": Vector3(14.0, 0.45, -52.0), "rot": 0.0},
+		{"pos": Vector3(20.0, 0.45, -52.0), "rot": 0.0},
+		{"pos": Vector3(8.0, 0.45, -46.0), "rot": PI},
+		{"pos": Vector3(14.0, 0.45, -46.0), "rot": PI},
+		{"pos": Vector3(20.0, 0.45, -46.0), "rot": PI}
+	]
+	for i in range(stalls.size()):
+		var st: Dictionary = stalls[i]
+		var model: PackedScene = car_models[i % car_models.size()]
+		_spawn_model(root, model, st["pos"], 1.1, st["rot"], 0.08)
+
+# -----------------------------------------------------------------
+# 10. DOWNTOWN PROMENADE & STREET TRAFFIC (Imported Cars & Benches)
 # -----------------------------------------------------------------
 static func _populate_downtown_props(root: Node3D) -> void:
 	# Benches along Grand Central Promenade (X = 8.0)
@@ -413,7 +445,7 @@ static func _spawn_model(parent: Node3D, model_scene: PackedScene, pos: Vector3,
 	var half_h: float = 0.5
 	if col_shape and col_shape.shape is BoxShape3D:
 		half_h = (col_shape.shape as BoxShape3D).size.y * 0.5
-	item.global_position = Vector3(pos.x, maxf(pos.y, half_h + 0.06), pos.z)
+	item.position = Vector3(pos.x, maxf(pos.y, half_h + 0.06), pos.z)
 	item.rotation.y = rot_y
 	item.set_meta("growth_value", growth)
 	return item
@@ -426,7 +458,7 @@ static func _spawn_procedural(parent: Node3D, node: Node3D, pos: Vector3, rot_y:
 	var half_h: float = 0.5
 	if col_shape and col_shape.shape is BoxShape3D:
 		half_h = (col_shape.shape as BoxShape3D).size.y * 0.5
-	item.global_position = Vector3(pos.x, maxf(pos.y, half_h + 0.06), pos.z)
+	item.position = Vector3(pos.x, maxf(pos.y, half_h + 0.06), pos.z)
 	item.rotation.y = rot_y
 	item.set_meta("growth_value", 0.04)
 	return item

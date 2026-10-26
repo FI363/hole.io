@@ -294,23 +294,23 @@ static func _build_sports_stadium(parent: Node3D, track_mat: Material, soccer_ma
 	stadium.name = "SportsStadium"
 	parent.add_child(stadium)
 
-	# 1. Oval Running Track (Red, size 18 x 28 at X = -52.0, Z = 18.0)
+	# 1. Oval Running Track (Red, size 18 x 24 at X = -52.0, Z = 28.0)
 	var track := MeshInstance3D.new()
 	var tb := BoxMesh.new()
-	tb.size = Vector3(18.0, 0.04, 28.0)
+	tb.size = Vector3(18.0, 0.04, 24.0)
 	tb.material = track_mat
 	track.mesh = tb
-	track.position = Vector3(-52.0, 0.02, 18.0)
+	track.position = Vector3(-52.0, 0.02, 28.0)
 	track.add_to_group("hole_cutout_meshes")
 	stadium.add_child(track)
 
-	# 2. Inner Soccer Pitch (Green grass, size 11 x 21)
+	# 2. Inner Soccer Pitch (Green grass, size 11 x 18)
 	var pitch := MeshInstance3D.new()
 	var pb := BoxMesh.new()
-	pb.size = Vector3(11.0, 0.05, 21.0)
+	pb.size = Vector3(11.0, 0.05, 18.0)
 	pb.material = soccer_mat
 	pitch.mesh = pb
-	pitch.position = Vector3(-52.0, 0.03, 18.0)
+	pitch.position = Vector3(-52.0, 0.03, 28.0)
 	pitch.add_to_group("hole_cutout_meshes")
 	stadium.add_child(pitch)
 
@@ -321,36 +321,55 @@ static func _build_sports_stadium(parent: Node3D, track_mat: Material, soccer_ma
 	clb.size = Vector3(10.8, 0.06, 0.2)
 	clb.material = white_mat
 	center_line.mesh = clb
-	center_line.position = Vector3(-52.0, 0.04, 18.0)
+	center_line.position = Vector3(-52.0, 0.04, 28.0)
 	stadium.add_child(center_line)
 
 	var center_circle := MeshInstance3D.new()
 	var ccb := CylinderMesh.new()
-	ccb.top_radius = 2.2
-	ccb.bottom_radius = 2.2
+	ccb.top_radius = 2.0
+	ccb.bottom_radius = 2.0
 	ccb.height = 0.06
 	ccb.material = white_mat
 	center_circle.mesh = ccb
-	center_circle.position = Vector3(-52.0, 0.04, 18.0)
+	center_circle.position = Vector3(-52.0, 0.04, 28.0)
 	stadium.add_child(center_circle)
 
-	# 4. Bleachers (West side: X = -62.5, Z = 18.0)
+	# 4. Bleachers (West side: X = -62.5, Z = 28.0)
 	var bleachers := MeshInstance3D.new()
 	var bb := BoxMesh.new()
-	bb.size = Vector3(2.5, 2.2, 22.0)
+	bb.size = Vector3(2.5, 2.2, 20.0)
 	bb.material = Constants.get_standard_material(Color(0.70, 0.72, 0.75), 0.5)
 	bleachers.mesh = bb
-	bleachers.position = Vector3(-62.5, 1.1, 18.0)
+	bleachers.position = Vector3(-62.5, 1.1, 28.0)
 	stadium.add_child(bleachers)
 
 	# Canopy roof over bleachers
 	var canopy := MeshInstance3D.new()
 	var cb := BoxMesh.new()
-	cb.size = Vector3(3.5, 0.2, 22.5)
+	cb.size = Vector3(3.5, 0.2, 20.5)
 	cb.material = Constants.get_standard_material(Color(0.25, 0.45, 0.75), 0.5)
 	canopy.mesh = cb
-	canopy.position = Vector3(-62.0, 2.8, 18.0)
+	canopy.position = Vector3(-62.0, 2.8, 28.0)
 	stadium.add_child(canopy)
+
+	# 5. Tennis Court Hardcourt (East of stadium: X = -36.0, Z = 28.0 - matching Image 1)
+	var tennis := MeshInstance3D.new()
+	var court_mesh := BoxMesh.new()
+	court_mesh.size = Vector3(10.0, 0.04, 18.0)
+	court_mesh.material = Constants.get_standard_material(Color(0.20, 0.45, 0.65), 0.6)
+	tennis.mesh = court_mesh
+	tennis.position = Vector3(-36.0, 0.02, 28.0)
+	tennis.add_to_group("hole_cutout_meshes")
+	stadium.add_child(tennis)
+
+	# Tennis net
+	var net := MeshInstance3D.new()
+	var net_b := BoxMesh.new()
+	net_b.size = Vector3(9.5, 0.5, 0.1)
+	net_b.material = white_mat
+	net.mesh = net_b
+	net.position = Vector3(-36.0, 0.27, 28.0)
+	stadium.add_child(net)
 
 # -----------------------------------------------------------------
 # 6. CENTRAL PARK LAKE & FOUNTAIN PLAZA (Matching Image 3)

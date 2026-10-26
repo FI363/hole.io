@@ -68,7 +68,7 @@ static func _build_roundabouts(parent: Node3D, asphalt: Material, kerb: Material
 	parent.add_child(roundabouts_node)
 
 	var list: Array[Dictionary] = [
-		{"name": "Roundabout_NW", "pos": Vector3(-42.0, 0.02, -44.0), "r_out": 6.5, "r_in": 3.2},
+		{"name": "Roundabout_NW", "pos": Vector3(-42.0, 0.02, -38.0), "r_out": 6.5, "r_in": 3.2},
 		{"name": "Roundabout_West", "pos": Vector3(-75.0, 0.02, 35.0), "r_out": 6.5, "r_in": 3.2},
 		{"name": "Roundabout_SW_Airport", "pos": Vector3(-26.0, 0.02, 42.0), "r_out": 6.5, "r_in": 3.2},
 		{"name": "Roundabout_SE_Coast", "pos": Vector3(52.0, 0.02, 42.0), "r_out": 6.5, "r_in": 3.2}
@@ -163,9 +163,10 @@ static func _build_mountain_switchback(parent: Node3D, asphalt: Material, guardr
 			rb.size = Vector3(0.12, 0.65, (p1 - p0).length())
 			rb.material = guardrail
 			rail.mesh = rb
-			rail.position = (r0 + r1) * 0.5 + Vector3(0.0, 0.35, 0.0)
+			var rail_pos := (r0 + r1) * 0.5 + Vector3(0.0, 0.35, 0.0)
+			var target_pos := r1 + Vector3(0.0, 0.35, 0.0)
+			rail.look_at_from_position(rail_pos, target_pos, Vector3.UP)
 			mtn_roads.add_child(rail)
-			rail.look_at(r1 + Vector3(0.0, 0.35, 0.0), Vector3.UP)
 
 	var road_mesh := st.commit()
 	var road_mi := MeshInstance3D.new()
@@ -216,8 +217,8 @@ static func _build_downtown_grid(parent: Node3D, asphalt: Material, sidewalk: Ma
 	_add_road_strip(grid, asphalt, Vector3(52.0, 0.02, 6.0), Vector3(8.0, 0.02, 74.0))
 
 	# East-West Cross Streets:
-	# North Cross (Z = -44.0)
-	_add_road_strip(grid, asphalt, Vector3(5.0, 0.02, -44.0), Vector3(96.0, 0.02, 7.0))
+	# North Cross (Z = -38.0 - continuous arterial across entire city)
+	_add_road_strip(grid, asphalt, Vector3(8.0, 0.02, -38.0), Vector3(72.0, 0.02, 7.0))
 	# Mid-North Cross (Z = -20.0)
 	_add_road_strip(grid, asphalt, Vector3(5.0, 0.02, -20.0), Vector3(96.0, 0.02, 7.0))
 	# Center Boulevard (Z = 16.0)
@@ -229,6 +230,18 @@ static func _build_downtown_grid(parent: Node3D, asphalt: Material, sidewalk: Ma
 	_add_road_strip(grid, asphalt, Vector3(58.0, 0.02, -72.0), Vector3(56.0, 0.02, 8.0))
 	_add_road_strip(grid, asphalt, Vector3(74.0, 0.02, -58.0), Vector3(8.0, 0.02, 36.0))
 
+	# Northern Commercial District Access & Supermarket Loop (Matching Image 5)
+	# Commercial West Lane (X = -4.0, Z: -38 to -68)
+	_add_road_strip(grid, asphalt, Vector3(-4.0, 0.02, -53.0), Vector3(6.0, 0.02, 30.0))
+	# Commercial North Lane (Z = -68.0, X: -4 to 34)
+	_add_road_strip(grid, asphalt, Vector3(15.0, 0.02, -68.0), Vector3(44.0, 0.02, 6.0))
+	# Commercial East Lane (X = 34.0, Z: -38 to -68)
+	_add_road_strip(grid, asphalt, Vector3(34.0, 0.02, -53.0), Vector3(6.0, 0.02, 30.0))
+
+	# Supermarket Front Parking Lot (X: 2 to 26, Z: -54 to -44)
+	_add_road_strip(grid, asphalt, Vector3(14.0, 0.02, -49.0), Vector3(24.0, 0.02, 10.0))
+	_add_sidewalk_strip(grid, sidewalk, Vector3(14.0, 0.08, -43.5), Vector3(25.0, 0.06, 1.2))
+
 # -----------------------------------------------------------------
 # 4. SUBURBAN STREET NETWORK (Matching Image 1)
 # -----------------------------------------------------------------
@@ -237,25 +250,32 @@ static func _build_suburban_streets(parent: Node3D, asphalt: Material, sidewalk:
 	sub.name = "SuburbanStreets"
 	parent.add_child(sub)
 
-	# Western Curved Arterial (connecting Tunnel, NW Roundabout, and SW Roundabout)
-	# Tunnel exit approach (Z: -45 to -36)
-	_add_road_strip(sub, asphalt, Vector3(-72.0, 0.02, -40.0), Vector3(6.5, 0.02, 12.0))
+	# 1. Outer Northern Arterial (connecting Tunnel, NW Roundabout, and Avenue West: Z = -38.0, X: -84 to -18)
+	_add_road_strip(sub, asphalt, Vector3(-51.0, 0.02, -38.0), Vector3(66.0, 0.02, 6.0))
 
-	# Western perimeter avenue (X = -84.0, Z: -36 to 30)
-	_add_road_strip(sub, asphalt, Vector3(-84.0, 0.02, -3.0), Vector3(6.5, 0.02, 66.0))
+	# 2. Western Perimeter Avenue (X = -84.0, Z: -38 to 35)
+	_add_road_strip(sub, asphalt, Vector3(-84.0, 0.02, -1.5), Vector3(6.0, 0.02, 73.0))
 
-	# Connecting avenue to West Roundabout (Z = 0.0)
-	_add_road_strip(sub, asphalt, Vector3(-51.0, 0.02, 0.0), Vector3(66.0, 0.02, 6.5))
+	# 3. Dividing Avenue between Suburbs and Stadium (Z = 12.0, X: -84 to -18)
+	_add_road_strip(sub, asphalt, Vector3(-51.0, 0.02, 12.0), Vector3(66.0, 0.02, 6.0))
 
-	# Residential Cross Streets:
-	# North suburban street (Z = -20.0, X: -84 to -26)
-	_add_road_strip(sub, asphalt, Vector3(-55.0, 0.02, -20.0), Vector3(58.0, 0.02, 5.5))
+	# 4. Internal Residential Street North (Z = -22.0, X: -81 to -20, Width 4.5m)
+	_add_road_strip(sub, asphalt, Vector3(-50.5, 0.02, -22.0), Vector3(61.0, 0.02, 4.5))
 
-	# Mid suburban street (Z = -12.0, X: -84 to -26)
-	_add_road_strip(sub, asphalt, Vector3(-55.0, 0.02, -12.0), Vector3(58.0, 0.02, 5.5))
+	# 5. Internal Residential Street South (Z = -4.0, X: -81 to -20, Width 4.5m)
+	_add_road_strip(sub, asphalt, Vector3(-50.5, 0.02, -4.0), Vector3(61.0, 0.02, 4.5))
 
-	# Stadium Access Avenue (Z = 35.0, X: -75 to -26)
-	_add_road_strip(sub, asphalt, Vector3(-50.0, 0.02, 35.0), Vector3(50.0, 0.02, 6.5))
+	# 6. Connecting North-South Residential Cross Street West (X = -58.0, Z: -22 to -4, Width 4.5m)
+	_add_road_strip(sub, asphalt, Vector3(-58.0, 0.02, -13.0), Vector3(4.5, 0.02, 18.0))
+
+	# 7. Connecting North-South Residential Cross Street East (X = -32.0, Z: -22 to -4, Width 4.5m)
+	_add_road_strip(sub, asphalt, Vector3(-32.0, 0.02, -13.0), Vector3(4.5, 0.02, 18.0))
+
+	# 8. Residential Cul-de-Sac West of Stadium (X = -74.0, Z: 12 to 35, Width 4.5m)
+	_add_road_strip(sub, asphalt, Vector3(-74.0, 0.02, 23.5), Vector3(4.5, 0.02, 23.0))
+
+	# 9. Stadium South Access Avenue (connecting Roundabout West to Avenue West: Z = 35.0)
+	_add_road_strip(sub, asphalt, Vector3(-46.5, 0.02, 35.0), Vector3(57.0, 0.02, 6.0))
 
 # -----------------------------------------------------------------
 # 5. CENTRAL PARK WINDING PATHS (Matching Image 3)
@@ -465,6 +485,18 @@ static func _build_lane_markings(parent: Node3D, white_mat: Material) -> void:
 			z_bar.position = Vector3(zl.x + stripe * 1.0, zl.y, zl.z)
 			z_bar.add_to_group("hole_cutout_meshes")
 			markings.add_child(z_bar)
+
+	# Supermarket Parking Lot Stall Markings (Matching Image 5)
+	for px in range(5, 24, 3):
+		for pz in [-52.0, -46.0]:
+			var stall_line := MeshInstance3D.new()
+			var slb := BoxMesh.new()
+			slb.size = Vector3(0.12, 0.02, 4.2)
+			slb.material = white_mat
+			stall_line.mesh = slb
+			stall_line.position = Vector3(float(px), 0.03, float(pz))
+			stall_line.add_to_group("hole_cutout_meshes")
+			markings.add_child(stall_line)
 
 # -----------------------------------------------------------------
 # HELPER STRIP SPAWNERS & SURFACE TOOL

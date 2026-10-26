@@ -49,6 +49,18 @@ func _run_captures() -> void:
 			"pos": Vector3(8.0, 35.0, 48.0),
 			"look": Vector3(8.0, 5.0, -10.0),
 			"fov": 50.0
+		},
+		{
+			"name": "reference_city_suburban_closeup.png",
+			"pos": Vector3(-55.0, 45.0, 18.0),
+			"look": Vector3(-55.0, 0.0, -14.0),
+			"fov": 52.0
+		},
+		{
+			"name": "reference_city_commercial_district.png",
+			"pos": Vector3(15.0, 45.0, -22.0),
+			"look": Vector3(15.0, 0.0, -56.0),
+			"fov": 52.0
 		}
 	]
 
