@@ -135,288 +135,259 @@ func _build_city_map() -> void:
 	_spawn_model(MODEL_TRUCK_RED, Vector3(5.5, 0.65, 0.0), 1.1, PI * 0.5, 0.12)
 
 	# =============================================================
-	# ZONE 0: GRAND CENTRAL PLAZA & STARTER PERIMETER (Center: -18..+18)
+	# ZONE 0: CENTRAL CIVIC CIRCUS & ROUNDABOUT RING (Center: -14..+14)
 	# =============================================================
-	# Manhole covers along the central avenue crossroads
-	_spawn_manhole(Vector3(0.0, 0.02, 5.8))
-	_spawn_manhole(Vector3(0.0, 0.02, -5.8))
-	_spawn_manhole(Vector3(8.5, 0.02, 0.0))
-	_spawn_manhole(Vector3(-8.5, 0.02, 0.0))
-	_spawn_manhole(Vector3(0.0, 0.02, 12.5))
-	_spawn_manhole(Vector3(0.0, 0.02, -12.5))
-	_spawn_manhole(Vector3(14.0, 0.02, 0.0))
-	_spawn_manhole(Vector3(-14.0, 0.02, 0.0))
+	# Roundabout circulating vehicles
+	_spawn_model(MODEL_SEDAN_SPORTS, Vector3(8.5, 0.65, 8.5), 1.0, -PI * 0.25, 0.10)
+	_spawn_model(MODEL_TAXI, Vector3(-8.5, 0.65, -8.5), 1.0, PI * 0.75, 0.10)
+	_spawn_model(MODEL_POLICE, Vector3(8.5, 0.65, -8.5), 1.0, PI * 0.25, 0.10)
+	_spawn_model(MODEL_VAN, Vector3(-8.5, 0.65, 8.5), 1.05, -PI * 0.75, 0.12)
 
-	# Traffic cones (Starter road works along south and north avenues)
+	# Manhole covers along roundabout perimeter
+	_spawn_manhole(Vector3(0.0, 0.02, 6.0))
+	_spawn_manhole(Vector3(0.0, 0.02, -6.0))
+	_spawn_manhole(Vector3(6.0, 0.02, 0.0))
+	_spawn_manhole(Vector3(-6.0, 0.02, 0.0))
+	_spawn_manhole(Vector3(0.0, 0.02, 13.0))
+	_spawn_manhole(Vector3(0.0, 0.02, -13.0))
+	_spawn_manhole(Vector3(13.0, 0.02, 0.0))
+	_spawn_manhole(Vector3(-13.0, 0.02, 0.0))
+
+	# Roundabout perimeter warning cones & road markers
 	_spawn_model(MODEL_CONE, Vector3(1.8, 0.0, 5.5), 0.8, 0.0, 0.03)
 	_spawn_model(MODEL_CONE, Vector3(2.3, 0.0, 5.5), 0.8, 0.3, 0.03)
-	_spawn_model(MODEL_CONE, Vector3(2.8, 0.0, 5.5), 0.8, -0.2, 0.03)
 	_spawn_model(MODEL_CONE, Vector3(-1.8, 0.0, -5.5), 0.8, 0.1, 0.03)
 	_spawn_model(MODEL_CONE, Vector3(-2.3, 0.0, -5.5), 0.8, -0.4, 0.03)
-	_spawn_model(MODEL_CONE, Vector3(-2.8, 0.0, -5.5), 0.8, 0.2, 0.03)
 
-	# Sidewalk trash cans around plaza
+	# Circus island amenities: benches, trash cans, street signs
 	_spawn_model(MODEL_TRASHCAN, Vector3(4.2, 0.0, 1.8), 2.0, 0.0, 0.03)
 	_spawn_model(MODEL_TRASHCAN, Vector3(-4.2, 0.0, 1.8), 2.0, PI, 0.03)
 	_spawn_model(MODEL_TRASHCAN, Vector3(4.2, 0.0, -1.8), 2.0, 0.0, 0.03)
 	_spawn_model(MODEL_TRASHCAN, Vector3(-4.2, 0.0, -1.8), 2.0, PI, 0.03)
-	_spawn_model(MODEL_TRASHCAN, Vector3(8.5, 0.0, 4.5), 2.0, PI * 0.5, 0.03)
-	_spawn_model(MODEL_TRASHCAN, Vector3(-8.5, 0.0, -4.5), 2.0, -PI * 0.5, 0.03)
-
-	# Plaza benches
 	_spawn_model(MODEL_BENCH, Vector3(2.0, 0.0, 4.8), 2.4, PI, 0.04)
 	_spawn_model(MODEL_BENCH, Vector3(-2.0, 0.0, 4.8), 2.4, PI, 0.04)
 	_spawn_model(MODEL_BENCH, Vector3(2.0, 0.0, -4.8), 2.4, 0.0, 0.04)
 	_spawn_model(MODEL_BENCH, Vector3(-2.0, 0.0, -4.8), 2.4, 0.0, 0.04)
-	_spawn_model(MODEL_BENCH, Vector3(-7.5, 0.0, 8.5), 2.4, PI * 0.5, 0.04)
-	_spawn_model(MODEL_BENCH, Vector3(-7.5, 0.0, 12.5), 2.4, PI * 0.5, 0.04)
-
-	# Street signs & Traffic lights
 	_spawn_model(MODEL_SIGN_STOP, Vector3(4.5, 0.0, 4.2), 3.6, PI * 0.25, 0.04)
 	_spawn_model(MODEL_SIGN_STOP, Vector3(-4.5, 0.0, -4.2), 3.6, -PI * 0.75, 0.04)
 	_spawn_model(MODEL_SIGN_STREET, Vector3(4.5, 0.0, -4.2), 3.6, PI * 0.75, 0.04)
 	_spawn_model(MODEL_SIGN_STREET, Vector3(-4.5, 0.0, 4.2), 3.6, -PI * 0.25, 0.04)
-	_spawn_model(MODEL_TRAFFIC_LIGHT, Vector3(4.5, 0.0, 2.2), 4.5, 0.0, 0.06)
-	_spawn_model(MODEL_TRAFFIC_LIGHT, Vector3(-4.5, 0.0, -2.2), 4.5, PI, 0.06)
-	_spawn_model(MODEL_TRAFFIC_LIGHT, Vector3(2.2, 0.0, -4.5), 4.5, PI * 0.5, 0.06)
-	_spawn_model(MODEL_TRAFFIC_LIGHT, Vector3(-2.2, 0.0, 4.5), 4.5, -PI * 0.5, 0.06)
+	_spawn_model(MODEL_TRAFFIC_LIGHT, Vector3(5.5, 0.0, 2.0), 4.5, 0.0, 0.06)
+	_spawn_model(MODEL_TRAFFIC_LIGHT, Vector3(-5.5, 0.0, -2.0), 4.5, PI, 0.06)
 
-	# Parked motorcycles / bikes in plaza stalls
-	_spawn_model(MODEL_MOTORCYCLE, Vector3(1.8, 0.0, -3.8), 0.85, 0.5, 0.05)
-	_spawn_model(MODEL_MOTORCYCLE, Vector3(-1.8, 0.0, 3.8), 0.85, -0.5, 0.05)
-	_spawn_model(MODEL_MOTORCYCLE, Vector3(6.5, 0.0, 6.5), 0.85, 0.8, 0.05)
-	_spawn_model(MODEL_MOTORCYCLE, Vector3(-6.5, 0.0, -6.5), 0.85, -0.8, 0.05)
-
-	# Decorative Plaza Flowers & Bushes
+	# Circus island decorative flora & parked bikes
 	_spawn_model(MODEL_FLOWER_PURPLE, Vector3(4.8, 0.0, 1.5), 2.2, 0.0, 0.03)
 	_spawn_model(MODEL_FLOWER_RED, Vector3(-1.5, 0.0, 4.8), 2.2, 0.4, 0.03)
 	_spawn_model(MODEL_FLOWER_PURPLE, Vector3(1.5, 0.0, -4.8), 2.2, -0.3, 0.03)
 	_spawn_model(MODEL_FLOWER_RED, Vector3(-4.8, 0.0, -1.5), 2.2, 0.6, 0.03)
-	_spawn_model(MODEL_BUSH_SMALL, Vector3(5.2, 0.0, 3.5), 2.0, 0.0, 0.03)
-	_spawn_model(MODEL_BUSH_SMALL, Vector3(-5.2, 0.0, -3.5), 2.0, 0.5, 0.03)
-	_spawn_model(MODEL_BUSH, Vector3(4.0, 0.0, -5.2), 2.0, 0.2, 0.04)
-	_spawn_model(MODEL_BUSH, Vector3(-4.0, 0.0, 5.2), 2.0, -0.4, 0.04)
+	_spawn_model(MODEL_BUSH_SMALL, Vector3(5.0, 0.0, 3.2), 2.0, 0.0, 0.03)
+	_spawn_model(MODEL_BUSH_SMALL, Vector3(-5.0, 0.0, -3.2), 2.0, 0.5, 0.03)
+	_spawn_model(MODEL_MOTORCYCLE, Vector3(1.8, 0.0, -3.8), 0.85, 0.5, 0.05)
+	_spawn_model(MODEL_MOTORCYCLE, Vector3(-1.8, 0.0, 3.8), 0.85, -0.5, 0.05)
 
 	# =============================================================
-	# ZONE 1: DOWNTOWN FINANCIAL DISTRICT & SKYSCRAPER CORE (South-East: +22..+42, +22..+42)
+	# ZONE 1: GRAND DIAGONAL BOULEVARD CORRIDOR (SW to NE Arterial)
 	# =============================================================
-	# Giant Skyscraper Towers (Trophy high-rises!)
-	_spawn_model(MODEL_SKYSCRAPER_A, Vector3(32.0, 0.0, 32.0), 3.6, 0.0, 0.60)
-	_spawn_model(MODEL_SKYSCRAPER_B, Vector3(39.0, 0.0, 32.0), 3.6, 0.0, 0.65)
-	_spawn_model(MODEL_SKYSCRAPER_C, Vector3(32.0, 0.0, 39.0), 3.6, 0.0, 0.65)
-	_spawn_model(MODEL_SKYSCRAPER_D, Vector3(39.0, 0.0, 39.0), 3.6, 0.0, 0.80)
-
-	# Commercial Office Mid-Rises (2-3 Stories)
-	_spawn_model(MODEL_COMM_A, Vector3(26.0, 0.0, 26.0), 3.2, 0.0, 0.30)
-	_spawn_model(MODEL_COMM_C, Vector3(38.0, 0.0, 26.0), 3.2, 0.0, 0.30)
-	_spawn_model(MODEL_COMM_F, Vector3(26.0, 0.0, 33.0), 3.2, PI * 0.5, 0.30)
-	_spawn_model(MODEL_COMM_H, Vector3(26.0, 0.0, 40.0), 3.2, PI * 0.5, 0.32)
-	_spawn_model(MODEL_BUILDING_B, Vector3(38.0, 0.8, 25.5), 1.6, 0.0, 0.25)
-	_spawn_model(MODEL_BUILDING_C, Vector3(28.0, 1.2, 28.0), 1.7, 0.0, 0.30)
-
-	# Downtown Street Vehicles (Taxis, police cruisers, executive sedans)
-	_spawn_model(MODEL_TAXI, Vector3(27.0, 0.65, 22.5), 1.0, PI * 0.5, 0.10)
-	_spawn_model(MODEL_TAXI, Vector3(35.0, 0.65, 22.5), 1.0, PI * 0.5, 0.10)
-	_spawn_model(MODEL_POLICE, Vector3(22.5, 0.65, 30.0), 1.0, 0.0, 0.10)
-	_spawn_model(MODEL_POLICE, Vector3(22.5, 0.65, 38.0), 1.0, 0.0, 0.10)
-	_spawn_model(MODEL_SEDAN_SPORTS, Vector3(30.0, 0.65, 26.5), 1.0, 0.0, 0.10)
-	_spawn_model(MODEL_SEDAN, Vector3(36.0, 0.65, 26.5), 1.0, 0.0, 0.10)
-
-	# Modern Curved Streetlights & Traffic Signals
-	_spawn_model(MODEL_LIGHT_CURVED, Vector3(29.0, 0.0, 23.5), 4.2, PI, 0.05)
-	_spawn_model(MODEL_LIGHT_CURVED, Vector3(37.0, 0.0, 23.5), 4.2, PI, 0.05)
-	_spawn_model(MODEL_LIGHT_CURVED, Vector3(23.5, 0.0, 29.0), 4.2, -PI * 0.5, 0.05)
-	_spawn_model(MODEL_LIGHT_CURVED, Vector3(23.5, 0.0, 37.0), 4.2, -PI * 0.5, 0.05)
-	_spawn_model(MODEL_TRAFFIC_LIGHT, Vector3(24.5, 0.0, 24.5), 4.5, PI * 0.25, 0.06)
-	_spawn_model(MODEL_SIGN_STOP, Vector3(25.0, 0.0, 23.0), 3.6, PI * 0.5, 0.04)
-
-	# Downtown Manholes & Trash Cans
-	_spawn_manhole(Vector3(30.0, 0.02, 22.5))
-	_spawn_manhole(Vector3(22.5, 0.02, 33.0))
-	_spawn_model(MODEL_TRASHCAN, Vector3(26.0, 0.0, 23.5), 2.0, 0.0, 0.03)
-	_spawn_model(MODEL_TRASHCAN, Vector3(34.0, 0.0, 23.5), 2.0, 0.0, 0.03)
+	# Vehicles cruising along the diagonal boulevard (angled at -45 deg: X = -Z)
+	_spawn_model(MODEL_SEDAN, Vector3(-18.0, 0.65, 18.0), 1.0, -PI * 0.25, 0.10)
+	_spawn_model(MODEL_SUV, Vector3(18.0, 0.70, -18.0), 1.05, PI * 0.75, 0.12)
+	_spawn_model(MODEL_TAXI, Vector3(-26.0, 0.65, 26.0), 1.0, -PI * 0.25, 0.10)
+	_spawn_model(MODEL_SEDAN_SPORTS, Vector3(26.0, 0.65, -26.0), 1.0, PI * 0.75, 0.10)
+	# Boulevard median lighting & palm trees
+	_spawn_model(MODEL_LIGHT_CURVED, Vector3(-15.0, 0.0, 13.0), 4.2, -PI * 0.25, 0.05)
+	_spawn_model(MODEL_LIGHT_CURVED, Vector3(15.0, 0.0, -13.0), 4.2, PI * 0.75, 0.05)
+	_spawn_model(MODEL_TREE_PALM, Vector3(-21.0, 0.0, 17.0), 2.8, 0.0, 0.08)
+	_spawn_model(MODEL_TREE_PALM, Vector3(21.0, 0.0, -17.0), 2.8, 0.0, 0.08)
 
 	# =============================================================
-	# ZONE 2: CENTRAL BOTANICAL PARK & NATURE RESERVE (South-West: -42..-22, +22..+42)
+	# ZONE 2: DOWNTOWN FINANCIAL DISTRICT & SKYSCRAPERS (Southeast: +20..+45, +20..+45)
+	# =============================================================
+	# Trophy Skyscraper Towers
+	_spawn_model(MODEL_SKYSCRAPER_A, Vector3(33.0, 0.0, 33.0), 3.6, 0.0, 0.60)
+	_spawn_model(MODEL_SKYSCRAPER_B, Vector3(41.0, 0.0, 33.0), 3.6, 0.0, 0.65)
+	_spawn_model(MODEL_SKYSCRAPER_C, Vector3(33.0, 0.0, 41.0), 3.6, 0.0, 0.65)
+	_spawn_model(MODEL_SKYSCRAPER_D, Vector3(41.0, 0.0, 41.0), 3.6, 0.0, 0.80)
+
+	# Commercial Office Mid-Rises on Polygonal Block
+	_spawn_model(MODEL_COMM_A, Vector3(23.0, 0.0, 34.0), 3.2, 0.0, 0.30)
+	_spawn_model(MODEL_COMM_C, Vector3(34.0, 0.0, 23.0), 3.2, 0.0, 0.30)
+	_spawn_model(MODEL_COMM_F, Vector3(20.0, 0.0, 42.0), 3.2, deg_to_rad(25.0), 0.30)
+	_spawn_model(MODEL_COMM_H, Vector3(42.0, 0.0, 20.0), 3.2, PI * 0.5, 0.32)
+	_spawn_model(MODEL_BUILDING_B, Vector3(26.0, 0.8, 26.0), 1.6, 0.0, 0.25)
+
+	# Downtown Street Vehicles
+	_spawn_model(MODEL_TAXI, Vector3(28.0, 0.65, 18.0), 1.0, PI * 0.5, 0.10)
+	_spawn_model(MODEL_TAXI, Vector3(36.0, 0.65, 18.0), 1.0, PI * 0.5, 0.10)
+	_spawn_model(MODEL_POLICE, Vector3(18.0, 0.65, 28.0), 1.0, 0.0, 0.10)
+	_spawn_model(MODEL_SEDAN_SPORTS, Vector3(18.0, 0.65, 36.0), 1.0, 0.0, 0.10)
+	_spawn_model(MODEL_SEDAN, Vector3(36.0, 0.65, 28.0), 1.0, 0.0, 0.10)
+
+	# Downtown Street Furniture & Infrastructure
+	_spawn_model(MODEL_LIGHT_CURVED, Vector3(30.0, 0.0, 19.0), 4.2, PI, 0.05)
+	_spawn_model(MODEL_LIGHT_CURVED, Vector3(38.0, 0.0, 19.0), 4.2, PI, 0.05)
+	_spawn_model(MODEL_TRAFFIC_LIGHT, Vector3(20.0, 0.0, 20.0), 4.5, PI * 0.25, 0.06)
+	_spawn_model(MODEL_TRASHCAN, Vector3(25.0, 0.0, 19.0), 2.0, 0.0, 0.03)
+	_spawn_model(MODEL_TRASHCAN, Vector3(35.0, 0.0, 19.0), 2.0, 0.0, 0.03)
+	_spawn_manhole(Vector3(30.0, 0.02, 18.0))
+
+	# =============================================================
+	# ZONE 3: SUBURBAN RESIDENTIAL ENCLAVE & CUL-DE-SAC (Northwest: -20..-45, -20..-45)
+	# =============================================================
+	# Suburban Homes along curved cul-de-sac
+	_spawn_model(MODEL_SUBURBAN_A, Vector3(-32.0, 0.0, -32.0), 2.6, 0.0, 0.22)
+	_spawn_model(MODEL_SUBURBAN_B, Vector3(-40.0, 0.0, -32.0), 2.6, 0.0, 0.25)
+	_spawn_model(MODEL_SUBURBAN_E, Vector3(-32.0, 0.0, -40.0), 2.6, PI * 0.5, 0.22)
+	_spawn_model(MODEL_SUBURBAN_H, Vector3(-40.0, 0.0, -40.0), 2.6, -PI * 0.5, 0.25)
+	_spawn_model(MODEL_SUBURBAN_A, Vector3(-24.0, 0.0, -29.0), 2.6, deg_to_rad(-30.0), 0.22)
+	_spawn_model(MODEL_SUBURBAN_B, Vector3(-29.0, 0.0, -24.0), 2.6, deg_to_rad(60.0), 0.25)
+
+	# Detached Garages
+	_spawn_model(MODEL_GARAGE, Vector3(-35.0, 0.5, -36.0), 1.3, PI * 0.5, 0.15)
+	_spawn_model(MODEL_GARAGE, Vector3(-43.0, 0.5, -36.0), 1.3, PI * 0.5, 0.15)
+
+	# Driveway Family Vehicles
+	_spawn_model(MODEL_SEDAN, Vector3(-30.0, 0.65, -30.0), 1.0, 0.0, 0.10)
+	_spawn_model(MODEL_SEDAN, Vector3(-38.0, 0.65, -30.0), 1.0, 0.0, 0.10)
+	_spawn_model(MODEL_SUV, Vector3(-30.0, 0.70, -38.0), 1.05, 0.0, 0.12)
+	_spawn_model(MODEL_SUV, Vector3(-38.0, 0.70, -38.0), 1.05, 0.0, 0.12)
+
+	# Front-yard nature & neighborhood props
+	_spawn_model(MODEL_TREE_OAK, Vector3(-36.0, 0.0, -32.0), 2.5, 0.0, 0.08)
+	_spawn_model(MODEL_TREE_PINE, Vector3(-43.0, 0.0, -31.0), 2.6, 0.0, 0.08)
+	_spawn_model(MODEL_TRASHCAN, Vector3(-29.0, 0.0, -26.0), 2.0, 0.0, 0.03)
+	_spawn_model(MODEL_TRASHCAN, Vector3(-37.0, 0.0, -26.0), 2.0, 0.0, 0.03)
+	_spawn_model(MODEL_SIGN_STOP, Vector3(-23.0, 0.0, -21.0), 3.6, -PI * 0.5, 0.04)
+
+	# =============================================================
+	# ZONE 4: INDUSTRIAL LOGISTICS & FREIGHT PORT (Northeast: +20..+45, -20..-45)
+	# =============================================================
+	# Dual Water Towers & Depot
+	_spawn_model(MODEL_WATER_TOWER, Vector3(36.0, 0.0, -36.0), 2.4, 0.0, 0.28)
+	_spawn_model(MODEL_WATER_TOWER, Vector3(20.0, 0.0, -38.0), 2.2, 0.0, 0.25)
+
+	# Stacked Shipping Containers
+	_spawn_model(MODEL_CONTAINER_A, Vector3(32.0, 0.0, -34.0), 2.2, 0.0, 0.15)
+	_spawn_model(MODEL_CONTAINER_B, Vector3(40.0, 0.0, -34.0), 2.2, PI * 0.5, 0.15)
+	_spawn_model(MODEL_CONTAINER_A, Vector3(32.0, 0.0, -38.0), 2.2, PI * 0.5, 0.15)
+	_spawn_model(MODEL_CONTAINER_B, Vector3(40.0, 0.0, -38.0), 2.2, 0.0, 0.15)
+
+	# Industrial Warehouses & Factories
+	_spawn_model(MODEL_GARAGE, Vector3(30.0, 0.5, -30.0), 1.35, 0.0, 0.16)
+	_spawn_model(MODEL_GARAGE, Vector3(38.0, 0.5, -30.0), 1.35, 0.0, 0.16)
+	_spawn_model(MODEL_BUILDING_D, Vector3(30.0, 0.5, -42.0), 1.45, -PI * 0.5, 0.20)
+	_spawn_model(MODEL_BUILDING_A, Vector3(38.0, 0.5, -42.0), 1.4, 0.0, 0.18)
+
+	# Active Freight & Construction Zone
+	_spawn_model(MODEL_CONE_ORANGE, Vector3(30.0, 0.0, -25.0), 4.5, 0.0, 0.03)
+	_spawn_model(MODEL_CONE_ORANGE, Vector3(33.0, 0.0, -25.0), 4.5, 0.2, 0.03)
+	_spawn_model(MODEL_CONE_ORANGE, Vector3(36.0, 0.0, -25.0), 4.5, -0.3, 0.03)
+	_spawn_model(MODEL_BARRIER, Vector3(29.0, 0.0, -24.0), 3.8, 0.0, 0.05)
+	_spawn_model(MODEL_BARRIER, Vector3(37.0, 0.0, -24.0), 3.8, 0.0, 0.05)
+	_spawn_model(MODEL_FENCE, Vector3(29.0, 0.0, -26.0), 3.8, 0.0, 0.05)
+	_spawn_model(MODEL_FENCE, Vector3(37.0, 0.0, -26.0), 3.8, 0.0, 0.05)
+	_spawn_model(MODEL_DUMPSTER, Vector3(33.0, 0.0, -30.0), 3.5, 0.0, 0.08)
+	_spawn_model(MODEL_DUMPSTER, Vector3(41.0, 0.0, -26.0), 3.5, 0.4, 0.08)
+
+	# Heavy Freight Vehicles & Power Poles
+	_spawn_model(MODEL_GARBAGE_TRUCK, Vector3(26.0, 0.80, -32.0), 1.1, PI * 0.5, 0.16)
+	_spawn_model(MODEL_TRUCK_GREEN, Vector3(34.0, 0.65, -21.0), 1.15, PI * 0.5, 0.12)
+	_spawn_model(MODEL_TRUCK_YELLOW, Vector3(26.0, 0.65, -21.0), 1.15, PI * 0.5, 0.12)
+	_spawn_model(MODEL_VAN, Vector3(41.0, 0.70, -21.0), 1.05, PI * 0.5, 0.12)
+	_spawn_model(MODEL_ELECTRICITY_POLE, Vector3(25.0, 0.0, -22.5), 4.0, 0.0, 0.06)
+	_spawn_model(MODEL_ELECTRICITY_POLE, Vector3(38.0, 0.0, -22.5), 4.0, 0.0, 0.06)
+
+	# =============================================================
+	# ZONE 5: RIVERSIDE BOTANICAL PARK (Southwest: -20..-45, +20..+45)
 	# =============================================================
 	# Grand Park Fountain
 	_spawn_model(MODEL_FOUNTAIN, Vector3(-33.0, 0.25, 33.0), 1.4, 0.0, 0.12)
 
-	# Mature Oak Trees
+	# Mature Oak & Tall Pine Trees along Promenade
 	_spawn_model(MODEL_TREE_OAK, Vector3(-27.0, 0.0, 27.0), 2.6, 0.3, 0.08)
-	_spawn_model(MODEL_TREE_OAK, Vector3(-39.0, 0.0, 27.0), 2.6, -0.2, 0.08)
-	_spawn_model(MODEL_TREE_OAK, Vector3(-27.0, 0.0, 39.0), 2.6, 0.5, 0.08)
-	_spawn_model(MODEL_TREE_OAK, Vector3(-39.0, 0.0, 39.0), 2.6, -0.4, 0.08)
-
-	# Tall Pine Trees
+	_spawn_model(MODEL_TREE_OAK, Vector3(-40.0, 0.0, 27.0), 2.6, -0.2, 0.08)
+	_spawn_model(MODEL_TREE_OAK, Vector3(-27.0, 0.0, 40.0), 2.6, 0.5, 0.08)
+	_spawn_model(MODEL_TREE_OAK, Vector3(-40.0, 0.0, 40.0), 2.6, -0.4, 0.08)
 	_spawn_model(MODEL_TREE_PINE, Vector3(-33.0, 0.0, 27.0), 2.7, 0.0, 0.08)
 	_spawn_model(MODEL_TREE_PINE, Vector3(-27.0, 0.0, 33.0), 2.7, 0.4, 0.08)
-	_spawn_model(MODEL_TREE_PINE, Vector3(-39.0, 0.0, 33.0), 2.7, -0.3, 0.08)
-	_spawn_model(MODEL_TREE_PINE, Vector3(-33.0, 0.0, 39.0), 2.7, 0.2, 0.08)
-
-	# Tropical Palm Trees & Grove Trees
+	_spawn_model(MODEL_TREE_PINE, Vector3(-40.0, 0.0, 33.0), 2.7, -0.3, 0.08)
+	_spawn_model(MODEL_TREE_PINE, Vector3(-33.0, 0.0, 40.0), 2.7, 0.2, 0.08)
 	_spawn_model(MODEL_TREE_PALM, Vector3(-30.0, 0.0, 30.0), 2.8, 0.1, 0.08)
-	_spawn_model(MODEL_TREE_PALM, Vector3(-36.0, 0.0, 36.0), 2.8, -0.2, 0.08)
-	_spawn_model(MODEL_TREES_TALL, Vector3(-36.0, 0.7, 30.0), 1.3, 0.0, 0.08)
-	_spawn_model(MODEL_TREES_TALL, Vector3(-30.0, 0.7, 36.0), 1.3, 0.0, 0.08)
+	_spawn_model(MODEL_TREE_PALM, Vector3(-37.0, 0.0, 37.0), 2.8, -0.2, 0.08)
+	_spawn_model(MODEL_TREES_TALL, Vector3(-37.0, 0.7, 29.0), 1.3, 0.0, 0.08)
+	_spawn_model(MODEL_TREES_TALL, Vector3(-29.0, 0.7, 37.0), 1.3, 0.0, 0.08)
 
-	# Park Amenities (Benches, flowers, bushes, parked bikes)
-	_spawn_model(MODEL_BENCH, Vector3(-31.0, 0.0, 33.0), 2.4, PI * 0.5, 0.04)
-	_spawn_model(MODEL_BENCH, Vector3(-35.0, 0.0, 33.0), 2.4, -PI * 0.5, 0.04)
+	# Park Promenade Amenities
+	_spawn_model(MODEL_BENCH, Vector3(-30.0, 0.0, 34.0), 2.4, deg_to_rad(20.0), 0.04)
+	_spawn_model(MODEL_BENCH, Vector3(-35.0, 0.0, 34.0), 2.4, deg_to_rad(20.0), 0.04)
 	_spawn_model(MODEL_BENCH, Vector3(-33.0, 0.0, 31.0), 2.4, 0.0, 0.04)
-	_spawn_model(MODEL_BENCH, Vector3(-33.0, 0.0, 35.0), 2.4, PI, 0.04)
-	_spawn_model(MODEL_FLOWER_PURPLE, Vector3(-29.0, 0.0, 29.0), 2.4, 0.0, 0.03)
-	_spawn_model(MODEL_FLOWER_RED, Vector3(-37.0, 0.0, 29.0), 2.4, 0.0, 0.03)
-	_spawn_model(MODEL_FLOWER_PURPLE, Vector3(-29.0, 0.0, 37.0), 2.4, 0.0, 0.03)
-	_spawn_model(MODEL_FLOWER_RED, Vector3(-37.0, 0.0, 37.0), 2.4, 0.0, 0.03)
-	_spawn_model(MODEL_BUSH, Vector3(-28.0, 0.0, 35.0), 2.2, 0.0, 0.04)
-	_spawn_model(MODEL_BUSH, Vector3(-38.0, 0.0, 35.0), 2.2, 0.0, 0.04)
-	_spawn_model(MODEL_MOTORCYCLE, Vector3(-24.5, 0.0, 26.0), 0.85, PI * 0.5, 0.05)
-	_spawn_model(MODEL_MOTORCYCLE, Vector3(-24.5, 0.0, 27.5), 0.85, PI * 0.5, 0.05)
-	_spawn_model(MODEL_TRASHCAN, Vector3(-25.5, 0.0, 33.0), 2.0, 0.0, 0.03)
+	_spawn_model(MODEL_FLOWER_PURPLE, Vector3(-28.0, 0.0, 29.0), 2.4, 0.0, 0.03)
+	_spawn_model(MODEL_FLOWER_RED, Vector3(-38.0, 0.0, 29.0), 2.4, 0.0, 0.03)
+	_spawn_model(MODEL_FLOWER_PURPLE, Vector3(-28.0, 0.0, 38.0), 2.4, 0.0, 0.03)
+	_spawn_model(MODEL_FLOWER_RED, Vector3(-38.0, 0.0, 38.0), 2.4, 0.0, 0.03)
+	_spawn_model(MODEL_BUSH, Vector3(-27.0, 0.0, 35.0), 2.2, 0.0, 0.04)
+	_spawn_model(MODEL_BUSH, Vector3(-39.0, 0.0, 35.0), 2.2, 0.0, 0.04)
+	_spawn_model(MODEL_MOTORCYCLE, Vector3(-23.0, 0.0, 26.0), 0.85, PI * 0.5, 0.05)
+	_spawn_model(MODEL_MOTORCYCLE, Vector3(-23.0, 0.0, 27.5), 0.85, PI * 0.5, 0.05)
 
 	# =============================================================
-	# ZONE 3: MAPLE RIDGE SUBURBAN RESIDENTIAL DISTRICT (North-West: -42..-22, -42..-22)
+	# ZONE 6: CIVIC SERVICES PRECINCT (North-Central: -16..+16, -45..-25)
 	# =============================================================
-	# Suburban Homes with Porches & Gardens
-	_spawn_model(MODEL_SUBURBAN_A, Vector3(-30.0, 0.0, -30.0), 2.6, 0.0, 0.22)
-	_spawn_model(MODEL_SUBURBAN_B, Vector3(-38.0, 0.0, -30.0), 2.6, 0.0, 0.25)
-	_spawn_model(MODEL_SUBURBAN_E, Vector3(-30.0, 0.0, -38.0), 2.6, PI * 0.5, 0.22)
-	_spawn_model(MODEL_SUBURBAN_H, Vector3(-38.0, 0.0, -38.0), 2.6, -PI * 0.5, 0.25)
-	_spawn_model(MODEL_SUBURBAN_A, Vector3(-34.0, 0.0, -27.0), 2.6, 0.0, 0.22)
-	_spawn_model(MODEL_SUBURBAN_B, Vector3(-27.0, 0.0, -34.0), 2.6, -PI * 0.5, 0.25)
-
-	# Detached Garages
-	_spawn_model(MODEL_GARAGE, Vector3(-33.0, 0.5, -34.0), 1.3, PI * 0.5, 0.15)
-	_spawn_model(MODEL_GARAGE, Vector3(-41.0, 0.5, -34.0), 1.3, PI * 0.5, 0.15)
-
-	# Driveway Family Vehicles
-	_spawn_model(MODEL_SEDAN, Vector3(-28.0, 0.65, -29.5), 1.0, 0.0, 0.10)
-	_spawn_model(MODEL_SEDAN, Vector3(-36.0, 0.65, -29.5), 1.0, 0.0, 0.10)
-	_spawn_model(MODEL_SUV, Vector3(-28.0, 0.70, -37.5), 1.05, 0.0, 0.12)
-	_spawn_model(MODEL_SUV, Vector3(-36.0, 0.70, -37.5), 1.05, 0.0, 0.12)
-
-	# Front-yard trees, curbside trash cans, street signs
-	_spawn_model(MODEL_TREE_OAK, Vector3(-34.0, 0.0, -31.0), 2.5, 0.0, 0.08)
-	_spawn_model(MODEL_TREE_PINE, Vector3(-41.0, 0.0, -30.0), 2.6, 0.0, 0.08)
-	_spawn_model(MODEL_TRASHCAN, Vector3(-28.0, 0.0, -25.5), 2.0, 0.0, 0.03)
-	_spawn_model(MODEL_TRASHCAN, Vector3(-36.0, 0.0, -25.5), 2.0, 0.0, 0.03)
-	_spawn_model(MODEL_SIGN_STOP, Vector3(-25.0, 0.0, -23.0), 3.6, -PI * 0.5, 0.04)
-	_spawn_manhole(Vector3(-30.0, 0.02, -22.5))
-
-	# =============================================================
-	# ZONE 4: LOGISTICS DEPOT & ACTIVE CONSTRUCTION (North-East: +22..+42, -42..-22)
-	# =============================================================
-	# Industrial Warehouses & Depots
-	_spawn_model(MODEL_GARAGE, Vector3(30.0, 0.5, -30.0), 1.35, 0.0, 0.16)
-	_spawn_model(MODEL_GARAGE, Vector3(38.0, 0.5, -30.0), 1.35, 0.0, 0.16)
-	_spawn_model(MODEL_BUILDING_D, Vector3(30.0, 0.5, -38.0), 1.45, -PI * 0.5, 0.20)
-	_spawn_model(MODEL_BUILDING_A, Vector3(38.0, 0.5, -38.0), 1.4, 0.0, 0.18)
-	_spawn_model(MODEL_WATER_TOWER, Vector3(35.0, 0.0, -35.0), 2.2, 0.0, 0.25)
-	_spawn_model(MODEL_CONTAINER_A, Vector3(31.0, 0.0, -34.0), 2.2, 0.0, 0.15)
-	_spawn_model(MODEL_CONTAINER_B, Vector3(39.0, 0.0, -34.0), 2.2, PI * 0.5, 0.15)
-
-	# Active Construction Zone Perimeter
-	_spawn_model(MODEL_CONE_ORANGE, Vector3(30.0, 0.0, -26.0), 4.5, 0.0, 0.03)
-	_spawn_model(MODEL_CONE_ORANGE, Vector3(33.0, 0.0, -26.0), 4.5, 0.2, 0.03)
-	_spawn_model(MODEL_CONE_ORANGE, Vector3(36.0, 0.0, -26.0), 4.5, -0.3, 0.03)
-	_spawn_model(MODEL_BARRIER, Vector3(29.0, 0.0, -25.0), 3.8, 0.0, 0.05)
-	_spawn_model(MODEL_BARRIER, Vector3(37.0, 0.0, -25.0), 3.8, 0.0, 0.05)
-	_spawn_model(MODEL_FENCE, Vector3(29.0, 0.0, -27.0), 3.8, 0.0, 0.05)
-	_spawn_model(MODEL_FENCE, Vector3(37.0, 0.0, -27.0), 3.8, 0.0, 0.05)
-	_spawn_model(MODEL_DUMPSTER, Vector3(33.0, 0.0, -34.0), 3.5, 0.0, 0.08)
-	_spawn_model(MODEL_DUMPSTER, Vector3(41.0, 0.0, -28.0), 3.5, 0.4, 0.08)
-
-	# Heavy Transport Fleet
-	_spawn_model(MODEL_GARBAGE_TRUCK, Vector3(27.0, 0.80, -34.0), 1.1, PI * 0.5, 0.16)
-	_spawn_model(MODEL_TRUCK_GREEN, Vector3(34.0, 0.65, -23.0), 1.15, PI * 0.5, 0.12)
-	_spawn_model(MODEL_TRUCK_YELLOW, Vector3(27.0, 0.65, -23.0), 1.15, PI * 0.5, 0.12)
-	_spawn_model(MODEL_VAN, Vector3(40.0, 0.70, -23.0), 1.05, PI * 0.5, 0.12)
-
-	# Electricity Poles & Manholes
-	_spawn_model(MODEL_ELECTRICITY_POLE, Vector3(26.0, 0.0, -24.5), 4.0, 0.0, 0.06)
-	_spawn_model(MODEL_ELECTRICITY_POLE, Vector3(38.0, 0.0, -24.5), 4.0, 0.0, 0.06)
-	_spawn_manhole(Vector3(30.0, 0.02, -22.5))
-	_spawn_manhole(Vector3(22.5, 0.02, -33.0))
-
-	# =============================================================
-	# ZONE 5: CIVIC SERVICES & EMERGENCY PRECINCT (North-Central: -16..+16, -42..-24)
-	# =============================================================
-	# City Hospital / Medical Clinic
-	_spawn_model(MODEL_BUILDING_D, Vector3(-8.0, 0.5, -34.0), 1.5, 0.0, 0.22)
-	_spawn_model(MODEL_AMBULANCE, Vector3(-4.0, 0.75, -34.0), 1.05, 0.0, 0.14)
-	_spawn_model(MODEL_AMBULANCE, Vector3(-12.0, 0.75, -34.0), 1.05, 0.0, 0.14)
+	# Hospital / Medical Center
+	_spawn_model(MODEL_BUILDING_D, Vector3(-8.0, 0.5, -36.0), 1.5, 0.0, 0.22)
+	_spawn_model(MODEL_AMBULANCE, Vector3(-4.0, 0.75, -36.0), 1.05, 0.0, 0.14)
+	_spawn_model(MODEL_AMBULANCE, Vector3(-12.0, 0.75, -36.0), 1.05, 0.0, 0.14)
 
 	# Metro Fire Station
-	_spawn_model(MODEL_GARAGE, Vector3(8.0, 0.5, -34.0), 1.4, 0.0, 0.16)
-	_spawn_model(MODEL_FIRETRUCK, Vector3(8.0, 0.80, -28.0), 1.1, 0.0, 0.16)
+	_spawn_model(MODEL_GARAGE, Vector3(8.0, 0.5, -36.0), 1.4, 0.0, 0.16)
+	_spawn_model(MODEL_FIRETRUCK, Vector3(8.0, 0.80, -30.0), 1.1, 0.0, 0.16)
 
 	# Police Substation
-	_spawn_model(MODEL_BUILDING_A, Vector3(0.0, 0.5, -38.0), 1.4, 0.0, 0.18)
-	_spawn_model(MODEL_POLICE, Vector3(0.0, 0.65, -32.0), 1.0, 0.0, 0.10)
-	_spawn_model(MODEL_LIGHTPOSTS, Vector3(0.0, 0.5, -26.0), 1.0, 0.0, 0.05)
+	_spawn_model(MODEL_BUILDING_A, Vector3(0.0, 0.5, -40.0), 1.4, 0.0, 0.18)
+	_spawn_model(MODEL_POLICE, Vector3(0.0, 0.65, -34.0), 1.0, 0.0, 0.10)
+	_spawn_model(MODEL_LIGHTPOSTS, Vector3(0.0, 0.5, -28.0), 1.0, 0.0, 0.05)
 
 	# =============================================================
-	# ZONE 6: MIDTOWN RETAIL & DINING PROMENADE (South-Central: -16..+16, +24..+42)
+	# ZONE 7: MIDTOWN RETAIL & DINING PROMENADE (South-Central: -16..+16, +25..+45)
 	# =============================================================
-	# Storefronts & Boutique Buildings
-	_spawn_model(MODEL_COMM_A, Vector3(-8.0, 0.0, 34.0), 3.2, 0.0, 0.28)
-	_spawn_model(MODEL_BUILDING_B, Vector3(0.0, 0.8, 36.0), 1.6, 0.0, 0.25)
-	_spawn_model(MODEL_BUILDING_C, Vector3(8.0, 1.2, 34.0), 1.6, 0.0, 0.30)
-
-	# Taxis & Delivery Fleet
-	_spawn_model(MODEL_TAXI, Vector3(-6.0, 0.65, 26.5), 1.0, 0.0, 0.10)
-	_spawn_model(MODEL_TAXI, Vector3(6.0, 0.65, 26.5), 1.0, 0.0, 0.10)
-	_spawn_model(MODEL_VAN, Vector3(-12.0, 0.70, 34.0), 1.05, PI * 0.5, 0.12)
-	_spawn_model(MODEL_VAN, Vector3(12.0, 0.70, 34.0), 1.05, -PI * 0.5, 0.12)
-
-	# Promenade Sidewalk Amenities
-	_spawn_model(MODEL_BENCH, Vector3(-4.0, 0.0, 31.0), 2.4, 0.0, 0.04)
-	_spawn_model(MODEL_BENCH, Vector3(4.0, 0.0, 31.0), 2.4, 0.0, 0.04)
-	_spawn_model(MODEL_TRASHCAN, Vector3(-8.0, 0.0, 31.0), 2.0, 0.0, 0.03)
-	_spawn_model(MODEL_TRASHCAN, Vector3(8.0, 0.0, 31.0), 2.0, 0.0, 0.03)
-	_spawn_model(MODEL_LIGHTPOSTS, Vector3(0.0, 0.5, 26.0), 1.0, PI, 0.05)
+	_spawn_model(MODEL_COMM_A, Vector3(-8.0, 0.0, 36.0), 3.2, 0.0, 0.28)
+	_spawn_model(MODEL_BUILDING_B, Vector3(0.0, 0.8, 38.0), 1.6, 0.0, 0.25)
+	_spawn_model(MODEL_BUILDING_C, Vector3(8.0, 1.2, 36.0), 1.6, 0.0, 0.30)
+	_spawn_model(MODEL_TAXI, Vector3(-6.0, 0.65, 29.0), 1.0, 0.0, 0.10)
+	_spawn_model(MODEL_TAXI, Vector3(6.0, 0.65, 29.0), 1.0, 0.0, 0.10)
+	_spawn_model(MODEL_VAN, Vector3(-12.0, 0.70, 36.0), 1.05, PI * 0.5, 0.12)
+	_spawn_model(MODEL_VAN, Vector3(12.0, 0.70, 36.0), 1.05, -PI * 0.5, 0.12)
+	_spawn_model(MODEL_BENCH, Vector3(-4.0, 0.0, 33.0), 2.4, 0.0, 0.04)
+	_spawn_model(MODEL_BENCH, Vector3(4.0, 0.0, 33.0), 2.4, 0.0, 0.04)
+	_spawn_model(MODEL_TRASHCAN, Vector3(-8.0, 0.0, 33.0), 2.0, 0.0, 0.03)
+	_spawn_model(MODEL_TRASHCAN, Vector3(8.0, 0.0, 33.0), 2.0, 0.0, 0.03)
+	_spawn_model(MODEL_LIGHTPOSTS, Vector3(0.0, 0.5, 28.0), 1.0, PI, 0.05)
 
 	# =============================================================
-	# ZONE 7: WESTERN COMMERCIAL TRANSIT CORRIDOR (West-Central: -42..-24, -16..+16)
+	# ZONE 8: INNOVATION & COMMERCIAL SATELLITES (East & West: ±35, ±5)
 	# =============================================================
-	_spawn_model(MODEL_BUILDING_A, Vector3(-34.0, 0.5, -8.0), 1.4, PI * 0.5, 0.18)
-	_spawn_model(MODEL_BUILDING_D, Vector3(-34.0, 0.5, 8.0), 1.45, -PI * 0.5, 0.20)
-	_spawn_model(MODEL_SEDAN, Vector3(-30.0, 0.65, 0.0), 1.0, PI * 0.5, 0.10)
-	_spawn_model(MODEL_SEDAN_SPORTS, Vector3(-38.0, 0.65, 0.0), 1.0, PI * 0.5, 0.10)
-	_spawn_model(MODEL_MOTORCYCLE, Vector3(-27.0, 0.35, -4.0), 0.85, 0.0, 0.05)
-	_spawn_model(MODEL_MOTORCYCLE, Vector3(-27.0, 0.35, 4.0), 0.85, 0.0, 0.05)
-	_spawn_model(MODEL_LIGHTPOSTS, Vector3(-26.0, 0.5, 0.0), 1.0, PI * 0.5, 0.05)
+	# West Corridor
+	_spawn_model(MODEL_BUILDING_A, Vector3(-36.0, 0.5, -8.0), 1.4, PI * 0.5, 0.18)
+	_spawn_model(MODEL_BUILDING_D, Vector3(-36.0, 0.5, 8.0), 1.45, -PI * 0.5, 0.20)
+	_spawn_model(MODEL_SEDAN, Vector3(-32.0, 0.65, 0.0), 1.0, PI * 0.5, 0.10)
+	_spawn_model(MODEL_SEDAN_SPORTS, Vector3(-40.0, 0.65, 0.0), 1.0, PI * 0.5, 0.10)
+	_spawn_model(MODEL_LIGHTPOSTS, Vector3(-28.0, 0.5, 0.0), 1.0, PI * 0.5, 0.05)
 
-	# =============================================================
-	# ZONE 8: INNOVATION & TECH OFFICE PARK (East-Central: +24..+42, -16..+16)
-	# =============================================================
-	_spawn_model(MODEL_COMM_C, Vector3(34.0, 0.0, -8.0), 3.2, 0.0, 0.30)
-	_spawn_model(MODEL_BUILDING_B, Vector3(34.0, 0.8, 8.0), 1.6, 0.0, 0.25)
-	_spawn_model(MODEL_SEDAN_SPORTS, Vector3(30.0, 0.65, 0.0), 1.0, -PI * 0.5, 0.10)
-	_spawn_model(MODEL_SUV, Vector3(38.0, 0.70, 0.0), 1.05, -PI * 0.5, 0.12)
-	_spawn_model(MODEL_LIGHT_CURVED, Vector3(26.0, 0.0, 0.0), 4.2, -PI * 0.5, 0.05)
-	_spawn_model(MODEL_TREE_PALM, Vector3(34.0, 0.0, 0.0), 2.8, 0.0, 0.08)
+	# East Corridor
+	_spawn_model(MODEL_COMM_C, Vector3(36.0, 0.0, -8.0), 3.2, 0.0, 0.30)
+	_spawn_model(MODEL_BUILDING_B, Vector3(36.0, 0.8, 8.0), 1.6, 0.0, 0.25)
+	_spawn_model(MODEL_SEDAN_SPORTS, Vector3(32.0, 0.65, 0.0), 1.0, -PI * 0.5, 0.10)
+	_spawn_model(MODEL_SUV, Vector3(40.0, 0.70, 0.0), 1.05, -PI * 0.5, 0.12)
+	_spawn_model(MODEL_LIGHT_CURVED, Vector3(28.0, 0.0, 0.0), 4.2, -PI * 0.5, 0.05)
+	_spawn_model(MODEL_TREE_PALM, Vector3(36.0, 0.0, 0.0), 2.8, 0.0, 0.08)
 
-	# =============================================================
-	# ZONE 9: 4-WAY ARTERIAL INTERSECTIONS & TRAFFIC CONTROLS
-	# =============================================================
-	# Major 4-way intersections: (-24, -24), (24, -24), (-24, 24), (24, 24)
-	_spawn_model(MODEL_TRAFFIC_LIGHT, Vector3(-22.5, 0.0, -22.5), 4.5, -PI * 0.25, 0.06)
-	_spawn_model(MODEL_TRAFFIC_LIGHT, Vector3(22.5, 0.0, -22.5), 4.5, PI * 0.75, 0.06)
-	_spawn_model(MODEL_TRAFFIC_LIGHT, Vector3(-22.5, 0.0, 22.5), 4.5, -PI * 0.75, 0.06)
-	_spawn_model(MODEL_TRAFFIC_LIGHT, Vector3(22.5, 0.0, 22.5), 4.5, PI * 0.25, 0.06)
-
-	# Intersecting road delivery vehicles
-	_spawn_model(MODEL_TRUCK_PURPLE, Vector3(0.0, 0.65, -18.0), 1.1, PI, 0.12)
-	_spawn_model(MODEL_TRUCK_YELLOW, Vector3(0.0, 0.65, 18.0), 1.1, 0.0, 0.12)
-	_spawn_model(MODEL_TRUCK_GREEN, Vector3(-18.0, 0.65, 0.0), 1.1, -PI * 0.5, 0.12)
-
-	# Outlying manhole covers
-	_spawn_manhole(Vector3(-24.0, 0.02, 0.0))
-	_spawn_manhole(Vector3(24.0, 0.02, 0.0))
-	_spawn_manhole(Vector3(0.0, 0.02, -24.0))
-	_spawn_manhole(Vector3(0.0, 0.02, 24.0))
+	# Crossroad Traffic Signals & Interconnecting Delivery Transport
+	_spawn_model(MODEL_TRAFFIC_LIGHT, Vector3(-26.0, 0.0, -26.0), 4.5, -PI * 0.25, 0.06)
+	_spawn_model(MODEL_TRAFFIC_LIGHT, Vector3(26.0, 0.0, -26.0), 4.5, PI * 0.75, 0.06)
+	_spawn_model(MODEL_TRAFFIC_LIGHT, Vector3(-26.0, 0.0, 26.0), 4.5, -PI * 0.75, 0.06)
+	_spawn_model(MODEL_TRAFFIC_LIGHT, Vector3(26.0, 0.0, 26.0), 4.5, PI * 0.25, 0.06)
+	_spawn_model(MODEL_TRUCK_PURPLE, Vector3(0.0, 0.65, -20.0), 1.1, PI, 0.12)
+	_spawn_model(MODEL_TRUCK_YELLOW, Vector3(0.0, 0.65, 20.0), 1.1, 0.0, 0.12)
+	_spawn_model(MODEL_TRUCK_GREEN, Vector3(-20.0, 0.65, 0.0), 1.1, -PI * 0.5, 0.12)
 
 func _spawn_model(model: PackedScene, pos: Vector3, p_scale: float = 1.0, rot_y: float = 0.0, growth: float = 0.04) -> Collectible:
 	var item := collectible_scene.instantiate() as Collectible
