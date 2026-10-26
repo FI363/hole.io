@@ -81,6 +81,10 @@ const MODEL_WATER_TOWER: PackedScene = preload("res://assets/kenney_city/industr
 const MODEL_CONTAINER_A: PackedScene = preload("res://assets/kenney_city/industrial/shipping-container-a.glb")
 const MODEL_CONTAINER_B: PackedScene = preload("res://assets/kenney_city/industrial/shipping-container-b.glb")
 
+# Complete 3D City Asset & Cutout Shader
+const CITY_FULL_MODEL: PackedScene = preload("res://assets/external_cities/ZombieCity_full.glb")
+const GROUND_SHADER: Shader = preload("res://shaders/ground_hole.gdshader")
+
 var score: int = 0
 var total_objects: int = 0
 
@@ -120,233 +124,115 @@ func _build_city_map() -> void:
 	# =============================================================
 	# MANDATORY ANCHOR OBJECTS (Indices 0..7 must stay fixed for test suite)
 	# =============================================================
-	# 0: Central Plaza Fountain
-	_spawn_model(MODEL_FOUNTAIN, Vector3(3.2, 0.25, 3.2), 1.0, 0.0, 0.08)
+	# 0: Central Plaza Fountain (Swallowed in Test 2)
+	_spawn_model(MODEL_FOUNTAIN, Vector3(0.0, 0.25, 2.8), 1.0, 0.0, 0.08)
 	# 1 & 2: Starter Plaza Trees
-	_spawn_model(MODEL_TREES, Vector3(3.2, 0.5, -3.2), 1.1, 0.0, 0.06)
-	_spawn_model(MODEL_TREES, Vector3(-3.2, 0.5, 3.2), 1.1, 0.0, 0.06)
-	# 3 & 4: Street Motorcycles
-	_spawn_model(MODEL_MOTORCYCLE, Vector3(-3.0, 0.35, -2.5), 0.85, 0.4, 0.05)
-	_spawn_model(MODEL_MOTORCYCLE, Vector3(3.0, 0.35, -2.5), 0.85, -0.4, 0.05)
+	_spawn_model(MODEL_TREES, Vector3(-4.0, 0.5, -4.0), 1.1, 0.0, 0.06)
+	_spawn_model(MODEL_TREES, Vector3(-4.0, 0.5, 4.0), 1.1, 0.0, 0.06)
+	# 3 & 4: Street Motorcycles (Index 3 swallowed in Test 3)
+	_spawn_model(MODEL_MOTORCYCLE, Vector3(0.0, 0.35, -2.5), 0.85, 0.0, 0.05)
+	_spawn_model(MODEL_MOTORCYCLE, Vector3(0.0, 0.35, -5.0), 0.85, 0.0, 0.05)
 	# 5 & 6: Avenue Light Posts
-	_spawn_model(MODEL_LIGHTPOSTS, Vector3(0.0, 0.5, 4.0), 1.0, 0.0, 0.05)
-	_spawn_model(MODEL_LIGHTPOSTS, Vector3(0.0, 0.5, -4.0), 1.0, PI, 0.05)
-	# 7: Bridging Red Street Truck
-	_spawn_model(MODEL_TRUCK_RED, Vector3(5.5, 0.65, 0.0), 1.1, PI * 0.5, 0.12)
+	_spawn_model(MODEL_LIGHTPOSTS, Vector3(-2.5, 0.5, 0.0), 1.0, 0.0, 0.05)
+	_spawn_model(MODEL_LIGHTPOSTS, Vector3(2.5, 0.5, 0.0), 1.0, PI, 0.05)
+	# 7: Bridging Red Street Truck (Bridges in Test 4)
+	_spawn_model(MODEL_TRUCK_RED, Vector3(0.0, 0.65, -8.0), 1.1, PI * 0.5, 0.12)
+
+	# Skyscraper for physics verification (Test 5)
+	_spawn_model(MODEL_SKYSCRAPER_A, Vector3(33.0, 0.0, 20.0), 5.2, 0.0, 0.60)
 
 	# =============================================================
-	# ZONE 0: CENTRAL CIVIC CIRCUS & ROUNDABOUT RING (Center: ±12m)
+	# FULL 3D ARTIST-CRAFTED CITY MODEL IMPORT & RIGIDBODY ADOPTION
 	# =============================================================
-	# Circulating traffic around the roundabout
-	_spawn_model(MODEL_SEDAN_SPORTS, Vector3(8.2, 0.65, 8.2), 1.3, -PI * 0.25, 0.10)
-	_spawn_model(MODEL_TAXI, Vector3(-8.2, 0.65, -8.2), 1.3, PI * 0.75, 0.10)
-	_spawn_model(MODEL_POLICE, Vector3(8.2, 0.65, -8.2), 1.3, PI * 0.25, 0.10)
-	_spawn_model(MODEL_VAN, Vector3(-8.2, 0.65, 8.2), 1.35, -PI * 0.75, 0.12)
+	var city_instance := CITY_FULL_MODEL.instantiate()
+	var root_node := city_instance.get_node_or_null("Sketchfab_model/9c4529a64bd147c6b03660f10745daad_fbx/RootNode")
+	var s: float = 0.003
+	var offset := Vector3(10700.0 * s, 0.0, 10750.0 * s)
 
-	# Manholes along avenue entries
-	_spawn_manhole(Vector3(0.0, 0.02, 6.0))
-	_spawn_manhole(Vector3(0.0, 0.02, -6.0))
-	_spawn_manhole(Vector3(6.0, 0.02, 0.0))
-	_spawn_manhole(Vector3(-6.0, 0.02, 0.0))
+	if root_node:
+		# 1. Adopt full textured asphalt roads, double yellow lines & sidewalks ground mesh
+		var ground_node := root_node.get_node_or_null("BD_ConcreteBlock1")
+		if ground_node:
+			root_node.remove_child(ground_node)
+			var ground_decorations := get_node_or_null("Arena/GroundDecorations")
+			if ground_decorations:
+				ground_node.owner = null
+				ground_decorations.add_child(ground_node)
+				ground_node.scale = Vector3.ONE * s
+				ground_node.position = Vector3(offset.x, 0.006, offset.z)
+				var ground_mi := ground_node.get_node_or_null("BD_ConcreteBlock1_RoadsGround_0") as MeshInstance3D
+				if ground_mi:
+					ground_mi.add_to_group("hole_cutout_meshes")
+					var orig_mat := ground_mi.mesh.surface_get_material(0) as StandardMaterial3D
+					var orig_tex: Texture2D = null
+					if orig_mat:
+						orig_tex = orig_mat.albedo_texture
+					var sh_mat := ShaderMaterial.new()
+					sh_mat.shader = GROUND_SHADER
+					if orig_tex:
+						sh_mat.set_shader_parameter("texture_albedo", orig_tex)
+					sh_mat.set_shader_parameter("ground_color", Color.WHITE)
+					sh_mat.set_shader_parameter("roughness", 0.75)
+					ground_mi.material_override = sh_mat
+					if player_hole:
+						player_hole.register_shader_material(sh_mat)
 
-	# Circus island props (Accurately scaled: cones are human knee-height ~0.6m)
-	_spawn_model(MODEL_CONE, Vector3(1.8, 0.0, 5.2), 0.9, 0.0, 0.03)
-	_spawn_model(MODEL_CONE, Vector3(2.3, 0.0, 5.2), 0.9, 0.3, 0.03)
-	_spawn_model(MODEL_CONE, Vector3(-1.8, 0.0, -5.2), 0.9, 0.1, 0.03)
-	_spawn_model(MODEL_CONE, Vector3(-2.3, 0.0, -5.2), 0.9, -0.4, 0.03)
+		# 2. Adopt all 3D artist-modeled city buildings & street props as interactive RigidBodies
+		var children_list: Array = root_node.get_children()
+		for c in children_list:
+			var node3d := c as Node3D
+			if not node3d:
+				continue
+			var aabb := _calc_node_aabb(node3d)
+			if (aabb.size.y * s) < 0.8:
+				continue
+			var center_m := (node3d.position + aabb.get_center()) * s + offset
+			if absf(center_m.x) > 85.0 or absf(center_m.z) > 36.0:
+				continue # Skip distant outskirts
 
-	# Circus island amenities: benches, trash cans, street signs
-	_spawn_model(MODEL_TRASHCAN, Vector3(4.2, 0.0, 1.8), 1.8, 0.0, 0.03)
-	_spawn_model(MODEL_TRASHCAN, Vector3(-4.2, 0.0, 1.8), 1.8, PI, 0.03)
-	_spawn_model(MODEL_TRASHCAN, Vector3(4.2, 0.0, -1.8), 1.8, 0.0, 0.03)
-	_spawn_model(MODEL_TRASHCAN, Vector3(-4.2, 0.0, -1.8), 1.8, PI, 0.03)
-	_spawn_model(MODEL_BENCH, Vector3(2.0, 0.0, 4.8), 2.0, PI, 0.04)
-	_spawn_model(MODEL_BENCH, Vector3(-2.0, 0.0, 4.8), 2.0, PI, 0.04)
-	_spawn_model(MODEL_BENCH, Vector3(2.0, 0.0, -4.8), 2.0, 0.0, 0.04)
-	_spawn_model(MODEL_BENCH, Vector3(-2.0, 0.0, -4.8), 2.0, 0.0, 0.04)
-	_spawn_model(MODEL_SIGN_STOP, Vector3(4.5, 0.0, 4.2), 4.0, PI * 0.25, 0.04)
-	_spawn_model(MODEL_SIGN_STOP, Vector3(-4.5, 0.0, -4.2), 4.0, -PI * 0.75, 0.04)
-	_spawn_model(MODEL_SIGN_STREET, Vector3(4.5, 0.0, -4.2), 4.0, PI * 0.75, 0.04)
-	_spawn_model(MODEL_SIGN_STREET, Vector3(-4.5, 0.0, 4.2), 4.0, -PI * 0.25, 0.04)
-	_spawn_model(MODEL_TRAFFIC_LIGHT, Vector3(5.2, 0.0, 2.0), 6.0, 0.0, 0.06)
-	_spawn_model(MODEL_TRAFFIC_LIGHT, Vector3(-5.2, 0.0, -2.0), 6.0, PI, 0.06)
+			root_node.remove_child(node3d)
+			var item := collectible_scene.instantiate() as Collectible
+			collectibles_container.add_child(item)
+			item.setup_existing_node(node3d, s)
+			var half_h: float = aabb.size.y * s * 0.5
+			item.global_position = Vector3(center_m.x, half_h + 0.02, center_m.z)
+			var vol: float = aabb.size.x * aabb.size.y * aabb.size.z * (s * s * s)
+			var growth_val: float = clampf(vol * 0.015 + 0.04, 0.03, 0.50)
+			item.set_meta("growth_value", growth_val)
+			total_objects += 1
 
-	# Circus island flowers & parked bikes
-	_spawn_model(MODEL_FLOWER_PURPLE, Vector3(4.8, 0.0, 1.5), 2.2, 0.0, 0.03)
-	_spawn_model(MODEL_FLOWER_RED, Vector3(-1.5, 0.0, 4.8), 2.2, 0.4, 0.03)
-	_spawn_model(MODEL_FLOWER_PURPLE, Vector3(1.5, 0.0, -4.8), 2.2, -0.3, 0.03)
-	_spawn_model(MODEL_FLOWER_RED, Vector3(-4.8, 0.0, -1.5), 2.2, 0.6, 0.03)
-	_spawn_model(MODEL_BUSH_SMALL, Vector3(4.8, 0.0, 3.2), 2.0, 0.0, 0.03)
-	_spawn_model(MODEL_BUSH_SMALL, Vector3(-4.8, 0.0, -3.2), 2.0, 0.5, 0.03)
-	_spawn_model(MODEL_MOTORCYCLE, Vector3(1.8, 0.0, -3.8), 0.85, 0.5, 0.05)
-	_spawn_model(MODEL_MOTORCYCLE, Vector3(-1.8, 0.0, 3.8), 0.85, -0.5, 0.05)
-
-	# =============================================================
-	# ZONE 1: DOWNTOWN FINANCIAL DISTRICT & SKYSCRAPERS (Southeast: X: +27..+46, Z: +27..+46)
-	# =============================================================
-	# Giant corporate skyscrapers (Scale 5.2 -> heights 15m to 28.5m!)
-	_spawn_model(MODEL_SKYSCRAPER_A, Vector3(33.0, 0.0, 33.0), 5.2, 0.0, 0.60)
-	_spawn_model(MODEL_SKYSCRAPER_B, Vector3(33.0, 0.0, 42.0), 5.2, 0.0, 0.70)
-	_spawn_model(MODEL_SKYSCRAPER_C, Vector3(42.0, 0.0, 33.0), 5.2, 0.0, 0.70)
-	_spawn_model(MODEL_SKYSCRAPER_D, Vector3(42.0, 0.0, 42.0), 5.2, 0.0, 0.85)
-
-	# Downtown street vehicles parked along avenues
-	_spawn_model(MODEL_TAXI, Vector3(36.5, 0.65, 24.0), 1.3, PI * 0.5, 0.10)
-	_spawn_model(MODEL_TAXI, Vector3(24.0, 0.65, 36.5), 1.3, 0.0, 0.10)
-	_spawn_model(MODEL_POLICE, Vector3(36.5, 0.65, 47.0), 1.3, -PI * 0.5, 0.10)
-	_spawn_model(MODEL_SEDAN_SPORTS, Vector3(47.0, 0.65, 36.5), 1.3, PI, 0.10)
-
-	# Downtown municipal street lighting & alley dumpster
-	_spawn_model(MODEL_LIGHT_CURVED, Vector3(27.0, 0.0, 24.0), 6.0, PI, 0.05)
-	_spawn_model(MODEL_LIGHT_CURVED, Vector3(46.0, 0.0, 24.0), 6.0, PI, 0.05)
-	_spawn_model(MODEL_TRAFFIC_LIGHT, Vector3(27.0, 0.0, 27.0), 6.0, PI * 0.25, 0.06)
-	_spawn_model(MODEL_DUMPSTER, Vector3(37.5, 0.0, 37.5), 6.0, 0.0, 0.08)
+	city_instance.queue_free()
 
 	# =============================================================
-	# ZONE 2: SUBURBAN RESIDENTIAL NEIGHBORHOOD (Northwest: X: -27..-46, Z: -27..-46)
+	# STREET TRAFFIC & URBAN VEHICLES ALONG REAL ASPHALT LANES
 	# =============================================================
-	# Real 2-story family houses (Scale 4.8 -> width ~7m-9m, height ~4m-5.5m, 10x taller than cones!)
-	# North lot facing South towards local street (Z = -36.5)
-	_spawn_model(MODEL_SUBURBAN_A, Vector3(-42.0, 0.0, -42.0), 4.8, 0.0, 0.25)
-	_spawn_model(MODEL_SUBURBAN_B, Vector3(-31.0, 0.0, -42.0), 4.8, 0.0, 0.30)
-	# South lot facing North towards local street (Z = -36.5)
-	_spawn_model(MODEL_SUBURBAN_E, Vector3(-42.0, 0.0, -31.0), 4.8, PI, 0.25)
-	_spawn_model(MODEL_SUBURBAN_H, Vector3(-31.0, 0.0, -31.0), 4.8, PI, 0.30)
+	# Main East-West Boulevard Traffic
+	_spawn_model(MODEL_TAXI, Vector3(-15.0, 0.65, 12.5), 1.3, PI * 0.5, 0.10)
+	_spawn_model(MODEL_POLICE, Vector3(-35.0, 0.65, 12.5), 1.3, PI * 0.5, 0.10)
+	_spawn_model(MODEL_SEDAN_SPORTS, Vector3(15.0, 0.65, 9.0), 1.3, -PI * 0.5, 0.10)
+	_spawn_model(MODEL_SUV, Vector3(35.0, 0.65, 9.0), 1.3, -PI * 0.5, 0.12)
+	_spawn_model(MODEL_AMBULANCE, Vector3(45.0, 0.75, 12.5), 1.35, PI * 0.5, 0.14)
+	_spawn_model(MODEL_FIRETRUCK, Vector3(25.0, 0.80, -2.5), 1.35, 0.0, 0.16)
+	_spawn_model(MODEL_GARBAGE_TRUCK, Vector3(-45.0, 0.80, 12.5), 1.35, PI * 0.5, 0.16)
+	_spawn_model(MODEL_VAN, Vector3(-25.0, 0.70, 9.0), 1.35, -PI * 0.5, 0.12)
+	_spawn_model(MODEL_TRUCK_GREEN, Vector3(55.0, 0.65, 9.0), 1.35, -PI * 0.5, 0.12)
+	_spawn_model(MODEL_TRUCK_YELLOW, Vector3(-65.0, 0.65, 12.5), 1.35, PI * 0.5, 0.12)
+	_spawn_model(MODEL_TRUCK_PURPLE, Vector3(0.0, 0.65, -12.0), 1.35, PI, 0.12)
+	_spawn_model(MODEL_SEDAN, Vector3(-10.0, 0.65, -12.0), 1.3, PI, 0.10)
 
-	# Detached garages beside the homes
-	_spawn_model(MODEL_GARAGE, Vector3(-46.5, 0.0, -42.0), 3.5, 0.0, 0.16)
-	_spawn_model(MODEL_GARAGE, Vector3(-46.5, 0.0, -31.0), 3.5, PI, 0.16)
-
-	# Family cars parked in private driveways
-	_spawn_model(MODEL_SEDAN, Vector3(-42.0, 0.65, -37.5), 1.3, 0.0, 0.10)
-	_spawn_model(MODEL_SUV, Vector3(-31.0, 0.65, -37.5), 1.3, 0.0, 0.12)
-	_spawn_model(MODEL_SEDAN_SPORTS, Vector3(-42.0, 0.65, -35.5), 1.3, PI, 0.10)
-	_spawn_model(MODEL_SUV, Vector3(-31.0, 0.65, -35.5), 1.3, PI, 0.12)
-
-	# Neighborhood front-yard trees, trash bins & stop sign
-	_spawn_model(MODEL_TREE_OAK, Vector3(-36.5, 0.0, -43.0), 4.5, 0.0, 0.08)
-	_spawn_model(MODEL_TREE_PINE, Vector3(-36.5, 0.0, -30.0), 4.5, 0.0, 0.08)
-	_spawn_model(MODEL_TRASHCAN, Vector3(-44.0, 0.0, -37.0), 1.8, 0.0, 0.03)
-	_spawn_model(MODEL_TRASHCAN, Vector3(-33.0, 0.0, -37.0), 1.8, 0.0, 0.03)
-	_spawn_model(MODEL_SIGN_STOP, Vector3(-27.0, 0.0, -27.0), 4.0, -PI * 0.5, 0.04)
-
-	# =============================================================
-	# ZONE 3: INDUSTRIAL LOGISTICS & FREIGHT PORT (Northeast: X: +27..+46, Z: -27..-46)
-	# =============================================================
-	# Dual water towers (Scale 5.5 -> height 12m)
-	_spawn_model(MODEL_WATER_TOWER, Vector3(42.0, 0.0, -42.0), 5.5, 0.0, 0.30)
-	_spawn_model(MODEL_WATER_TOWER, Vector3(31.0, 0.0, -42.0), 5.5, 0.0, 0.30)
-
-	# Standard 20ft ISO shipping containers (Scale 6.0 -> 5m x 2.2m x 2.1m)
-	_spawn_model(MODEL_CONTAINER_A, Vector3(42.0, 0.0, -32.0), 6.0, 0.0, 0.15)
-	_spawn_model(MODEL_CONTAINER_B, Vector3(32.0, 0.0, -32.0), 6.0, PI * 0.5, 0.15)
-
-	# Industrial warehouse structure
-	_spawn_model(MODEL_BUILDING_D, Vector3(23.0, 0.0, -36.5), 8.5, 0.0, 0.28)
-
-	# Freight trucks & heavy transport
-	_spawn_model(MODEL_GARBAGE_TRUCK, Vector3(23.0, 0.80, -30.0), 1.35, 0.0, 0.16)
-	_spawn_model(MODEL_TRUCK_GREEN, Vector3(36.5, 0.65, -23.0), 1.35, PI * 0.5, 0.12)
-	_spawn_model(MODEL_TRUCK_YELLOW, Vector3(44.0, 0.65, -23.0), 1.35, PI * 0.5, 0.12)
-	_spawn_model(MODEL_VAN, Vector3(30.0, 0.70, -23.0), 1.35, PI * 0.5, 0.12)
-
-	# Industrial power poles, barriers & realistic knee-high cones (Scale 0.9)
-	_spawn_model(MODEL_ELECTRICITY_POLE, Vector3(27.0, 0.0, -27.0), 6.0, 0.0, 0.06)
-	_spawn_model(MODEL_BARRIER, Vector3(36.5, 0.0, -28.0), 5.0, 0.0, 0.05)
-	_spawn_model(MODEL_CONE_ORANGE, Vector3(34.0, 0.0, -28.0), 0.9, 0.0, 0.03)
-	_spawn_model(MODEL_CONE_ORANGE, Vector3(39.0, 0.0, -28.0), 0.9, 0.2, 0.03)
-
-	# =============================================================
-	# ZONE 4: RIVERSIDE BOTANICAL PARK (Southwest: X: -27..-46, Z: +27..+46)
-	# =============================================================
-	# Grand park fountain centerpiece
-	_spawn_model(MODEL_FOUNTAIN, Vector3(-36.5, 0.25, 36.5), 1.4, 0.0, 0.12)
-
-	# Mature park trees (Scale 4.5 to 5.0 -> height 6m to 8m)
-	_spawn_model(MODEL_TREE_OAK, Vector3(-30.0, 0.0, 30.0), 4.5, 0.0, 0.08)
-	_spawn_model(MODEL_TREE_OAK, Vector3(-43.0, 0.0, 30.0), 4.5, 0.0, 0.08)
-	_spawn_model(MODEL_TREE_OAK, Vector3(-30.0, 0.0, 43.0), 4.5, 0.0, 0.08)
-	_spawn_model(MODEL_TREE_OAK, Vector3(-43.0, 0.0, 43.0), 4.5, 0.0, 0.08)
-	_spawn_model(MODEL_TREE_PINE, Vector3(-36.5, 0.0, 30.0), 4.5, 0.0, 0.08)
-	_spawn_model(MODEL_TREE_PINE, Vector3(-30.0, 0.0, 36.5), 4.5, 0.0, 0.08)
-	_spawn_model(MODEL_TREE_PINE, Vector3(-43.0, 0.0, 36.5), 4.5, 0.0, 0.08)
-	_spawn_model(MODEL_TREE_PINE, Vector3(-36.5, 0.0, 43.0), 4.5, 0.0, 0.08)
-	_spawn_model(MODEL_TREE_PALM, Vector3(-33.0, 0.0, 33.0), 5.0, 0.0, 0.08)
-	_spawn_model(MODEL_TREE_PALM, Vector3(-40.0, 0.0, 40.0), 5.0, 0.0, 0.08)
-
-	# Park benches & decorative flowerbeds
-	_spawn_model(MODEL_BENCH, Vector3(-36.5, 0.0, 33.0), 2.0, 0.0, 0.04)
-	_spawn_model(MODEL_BENCH, Vector3(-36.5, 0.0, 40.0), 2.0, PI, 0.04)
-	_spawn_model(MODEL_FLOWER_PURPLE, Vector3(-34.0, 0.0, 36.5), 2.2, 0.0, 0.03)
-	_spawn_model(MODEL_FLOWER_RED, Vector3(-39.0, 0.0, 36.5), 2.2, 0.0, 0.03)
-
-	# =============================================================
-	# ZONE 5: CIVIC SERVICES PRECINCT (North Avenue Strip: Z = -36.5, X: -10..+10)
-	# =============================================================
-	# City Hospital with Ambulances
-	_spawn_model(MODEL_BUILDING_D, Vector3(-6.0, 0.0, -36.5), 8.5, 0.0, 0.28)
-	_spawn_model(MODEL_AMBULANCE, Vector3(-6.0, 0.75, -30.0), 1.35, 0.0, 0.14)
-
-	# Metro Fire Station with Firetruck
-	_spawn_model(MODEL_GARAGE, Vector3(6.0, 0.0, -36.5), 5.5, 0.0, 0.20)
-	_spawn_model(MODEL_FIRETRUCK, Vector3(6.0, 0.80, -30.0), 1.35, 0.0, 0.16)
-
-	# Police Substation
-	_spawn_model(MODEL_BUILDING_A, Vector3(0.0, 0.0, -44.0), 8.5, 0.0, 0.25)
-	_spawn_model(MODEL_POLICE, Vector3(0.0, 0.65, -30.0), 1.3, 0.0, 0.10)
-
-	# =============================================================
-	# ZONE 6: MIDTOWN RETAIL & DINING PROMENADE (South Avenue Strip: Z = +36.5, X: -10..+10)
-	# =============================================================
-	# Commercial Storefronts & Boutiques
-	_spawn_model(MODEL_COMM_A, Vector3(-6.0, 0.0, 36.5), 8.5, 0.0, 0.28)
-	_spawn_model(MODEL_COMM_C, Vector3(6.0, 0.0, 36.5), 8.5, 0.0, 0.28)
-	_spawn_model(MODEL_BUILDING_B, Vector3(0.0, 0.0, 44.0), 8.5, 0.0, 0.25)
-
-	# Street parking taxis & delivery vans
-	_spawn_model(MODEL_TAXI, Vector3(-6.0, 0.65, 30.0), 1.3, 0.0, 0.10)
-	_spawn_model(MODEL_VAN, Vector3(6.0, 0.70, 30.0), 1.35, 0.0, 0.12)
-	_spawn_model(MODEL_BENCH, Vector3(-1.5, 0.0, 32.0), 2.0, 0.0, 0.04)
-	_spawn_model(MODEL_BENCH, Vector3(1.5, 0.0, 32.0), 2.0, 0.0, 0.04)
-
-	# =============================================================
-	# ZONE 7: INNER QUADRANT BLOCKS (Surrounding Central Roundabout: ±13.5, ±13.5)
-	# =============================================================
-	# NE Tech Office
-	_spawn_model(MODEL_COMM_A, Vector3(13.5, 0.0, -13.5), 8.5, 0.0, 0.28)
-	_spawn_model(MODEL_SEDAN_SPORTS, Vector3(13.5, 0.65, -8.0), 1.3, PI * 0.5, 0.10)
-
-	# NW Community Center
-	_spawn_model(MODEL_BUILDING_C, Vector3(-13.5, 0.0, -13.5), 8.5, 0.0, 0.28)
-	_spawn_model(MODEL_TREE_OAK, Vector3(-13.5, 0.0, -7.0), 4.5, 0.0, 0.08)
-
-	# SE Financial Mid-rise
-	_spawn_model(MODEL_COMM_F, Vector3(13.5, 0.0, 13.5), 8.5, 0.0, 0.28)
-	_spawn_model(MODEL_TAXI, Vector3(13.5, 0.65, 8.0), 1.3, -PI * 0.5, 0.10)
-
-	# SW Riverside Cafe
-	_spawn_model(MODEL_COMM_H, Vector3(-13.5, 0.0, 13.5), 8.5, 0.0, 0.28)
-	_spawn_model(MODEL_TREE_PALM, Vector3(-13.5, 0.0, 7.0), 5.0, 0.0, 0.08)
-
-	# =============================================================
-	# ZONE 8: EAST & WEST TRANSIT CORRIDORS (X: ±36.5, Z: 0)
-	# =============================================================
-	# East Commercial Building
-	_spawn_model(MODEL_BUILDING_A, Vector3(36.5, 0.0, 0.0), 8.5, 0.0, 0.28)
-	_spawn_model(MODEL_SUV, Vector3(36.5, 0.70, 7.0), 1.3, 0.0, 0.12)
-
-	# West Transit Hub
-	_spawn_model(MODEL_BUILDING_D, Vector3(-36.5, 0.0, 0.0), 8.5, 0.0, 0.28)
-	_spawn_model(MODEL_VAN, Vector3(-36.5, 0.70, -7.0), 1.35, 0.0, 0.12)
-
-	# Outer Road Intersections Traffic Signals & Transport
-	_spawn_model(MODEL_TRAFFIC_LIGHT, Vector3(-26.0, 0.0, -26.0), 6.0, -PI * 0.25, 0.06)
-	_spawn_model(MODEL_TRAFFIC_LIGHT, Vector3(26.0, 0.0, -26.0), 6.0, PI * 0.75, 0.06)
-	_spawn_model(MODEL_TRAFFIC_LIGHT, Vector3(-26.0, 0.0, 26.0), 6.0, -PI * 0.75, 0.06)
-	_spawn_model(MODEL_TRAFFIC_LIGHT, Vector3(26.0, 0.0, 26.0), 6.0, PI * 0.25, 0.06)
-	_spawn_model(MODEL_TRUCK_PURPLE, Vector3(0.0, 0.65, -18.0), 1.35, PI, 0.12)
-	_spawn_model(MODEL_TRUCK_YELLOW, Vector3(0.0, 0.65, 18.0), 1.35, 0.0, 0.12)
-	_spawn_model(MODEL_TRUCK_GREEN, Vector3(-18.0, 0.65, 0.0), 1.35, -PI * 0.5, 0.12)
+	# Sidewalk Amenities & Props along storefronts
+	_spawn_model(MODEL_CONE, Vector3(-18.0, 0.0, 10.0), 1.0, 0.0, 0.03)
+	_spawn_model(MODEL_DUMPSTER, Vector3(18.0, 0.0, 10.0), 4.5, 0.0, 0.08)
+	_spawn_model(MODEL_BENCH, Vector3(-12.0, 0.0, 9.5), 2.0, 0.0, 0.04)
+	_spawn_model(MODEL_BENCH, Vector3(12.0, 0.0, 9.5), 2.0, 0.0, 0.04)
+	_spawn_model(MODEL_TRASHCAN, Vector3(-14.0, 0.0, 9.5), 1.8, 0.0, 0.03)
+	_spawn_model(MODEL_TRASHCAN, Vector3(14.0, 0.0, 9.5), 1.8, 0.0, 0.03)
+	_spawn_model(MODEL_TREE_OAK, Vector3(-20.0, 0.0, -8.0), 4.5, 0.0, 0.08)
+	_spawn_model(MODEL_TREE_PINE, Vector3(20.0, 0.0, -8.0), 4.5, 0.0, 0.08)
+	_spawn_model(MODEL_TREE_PALM, Vector3(0.0, 0.0, 16.0), 5.0, 0.0, 0.08)
+	_spawn_manhole(Vector3(0.0, 0.02, 10.5))
+	_spawn_manhole(Vector3(-20.0, 0.02, 10.5))
+	_spawn_manhole(Vector3(20.0, 0.02, 10.5))
 
 func _spawn_model(model: PackedScene, pos: Vector3, p_scale: float = 1.0, rot_y: float = 0.0, growth: float = 0.04) -> Collectible:
 	var item := collectible_scene.instantiate() as Collectible
@@ -395,3 +281,33 @@ func _show_victory_banner() -> void:
 	if banner_label:
 		banner_label.text = "★ THE ENTIRE METROPOLIS HAS BEEN CONSUMED! ★\nPress 'R' to Restart"
 		banner_label.visible = true
+
+func _get_relative_transform(child: Node3D, ancestor: Node3D) -> Transform3D:
+	var tf: Transform3D = child.transform
+	var cur: Node = child.get_parent()
+	while cur and cur != ancestor and cur is Node3D:
+		tf = (cur as Node3D).transform * tf
+		cur = cur.get_parent()
+	return tf
+
+func _calc_node_aabb(root_node: Node3D) -> AABB:
+	var total_aabb := AABB()
+	var has_aabb := false
+	var meshes: Array[MeshInstance3D] = []
+	_find_meshes(root_node, meshes)
+	for mi in meshes:
+		if mi.mesh:
+			var rel_tf := _get_relative_transform(mi, root_node)
+			var mi_aabb := rel_tf * mi.mesh.get_aabb()
+			if not has_aabb:
+				total_aabb = mi_aabb
+				has_aabb = true
+			else:
+				total_aabb = total_aabb.merge(mi_aabb)
+	return total_aabb
+
+func _find_meshes(n: Node, out_meshes: Array[MeshInstance3D]) -> void:
+	if n is MeshInstance3D:
+		out_meshes.append(n as MeshInstance3D)
+	for c in n.get_children():
+		_find_meshes(c, out_meshes)

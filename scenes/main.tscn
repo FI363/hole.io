@@ -102,17 +102,17 @@ size = Vector3(18, 0.02, 18)
 
 [sub_resource type="BoxMesh" id="BoxMesh_wall_ns"]
 material = SubResource("StandardMaterial3D_curb")
-size = Vector3(97.6, 1.2, 0.8)
+size = Vector3(175, 1.2, 0.8)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_wall_ns"]
-size = Vector3(97.6, 1.2, 0.8)
+size = Vector3(175, 1.2, 0.8)
 
 [sub_resource type="BoxMesh" id="BoxMesh_wall_ew"]
 material = SubResource("StandardMaterial3D_curb")
-size = Vector3(0.8, 1.2, 97.6)
+size = Vector3(0.8, 1.2, 74)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_wall_ew"]
-size = Vector3(0.8, 1.2, 97.6)
+size = Vector3(0.8, 1.2, 74)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_score_panel"]
 content_margin_left = 20.0
@@ -161,7 +161,7 @@ use_collision = true
 
 [node name="Floor" type="CSGBox3D" parent="Arena/Ground" unique_id=1994061473]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2, 0)
-size = Vector3(96, 4, 96)
+size = Vector3(180, 4, 80)
 material = SubResource("StandardMaterial3D_ground")
 
 [node name="HoleCutout" type="CSGCylinder3D" parent="Arena/Ground" unique_id=1933069145]
@@ -174,104 +174,8 @@ material = SubResource("StandardMaterial3D_hole_interior")
 
 [node name="GroundDecorations" type="Node3D" parent="Arena"]
 
-[node name="RoundaboutRoad" type="MeshInstance3D" parent="Arena/GroundDecorations" groups=["hole_cutout_meshes"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.005, 0)
-mesh = SubResource("CylinderMesh_roundabout_road")
-
-[node name="RoadMainEW" type="MeshInstance3D" parent="Arena/GroundDecorations" groups=["hole_cutout_meshes"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.005, 0)
-mesh = SubResource("BoxMesh_road_main_ew")
-
-[node name="RoadMainNS" type="MeshInstance3D" parent="Arena/GroundDecorations" groups=["hole_cutout_meshes"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.005, 0)
-mesh = SubResource("BoxMesh_road_main_ns")
-
-[node name="RoadNorth" type="MeshInstance3D" parent="Arena/GroundDecorations" groups=["hole_cutout_meshes"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.005, -26)
-mesh = SubResource("BoxMesh_road_secondary_ew")
-
-[node name="RoadSouth" type="MeshInstance3D" parent="Arena/GroundDecorations" groups=["hole_cutout_meshes"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.005, 26)
-mesh = SubResource("BoxMesh_road_secondary_ew")
-
-[node name="RoadWest" type="MeshInstance3D" parent="Arena/GroundDecorations" groups=["hole_cutout_meshes"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -26, 0.005, 0)
-mesh = SubResource("BoxMesh_road_secondary_ns")
-
-[node name="RoadEast" type="MeshInstance3D" parent="Arena/GroundDecorations" groups=["hole_cutout_meshes"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26, 0.005, 0)
-mesh = SubResource("BoxMesh_road_secondary_ns")
-
-[node name="StreetSuburbanEW" type="MeshInstance3D" parent="Arena/GroundDecorations" groups=["hole_cutout_meshes"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36.5, 0.006, -36.5)
-mesh = SubResource("BoxMesh_street_local_ew")
-
-[node name="StreetSuburbanNS" type="MeshInstance3D" parent="Arena/GroundDecorations" groups=["hole_cutout_meshes"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36.5, 0.006, -36.5)
-mesh = SubResource("BoxMesh_street_local_ns")
-
-[node name="StreetIndustrialEW" type="MeshInstance3D" parent="Arena/GroundDecorations" groups=["hole_cutout_meshes"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.5, 0.006, -36.5)
-mesh = SubResource("BoxMesh_street_local_ew")
-
-[node name="StreetDowntownAlley" type="MeshInstance3D" parent="Arena/GroundDecorations" groups=["hole_cutout_meshes"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.5, 0.006, 36.5)
-mesh = SubResource("BoxMesh_street_local_ns")
-
-[node name="CircusIsland" type="MeshInstance3D" parent="Arena/GroundDecorations" groups=["hole_cutout_meshes"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.007, 0)
-mesh = SubResource("CylinderMesh_circus_island")
-
-[node name="BlockCenterNE" type="MeshInstance3D" parent="Arena/GroundDecorations" groups=["hole_cutout_meshes"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.5, 0.007, -13.5)
-mesh = SubResource("BoxMesh_block_quad")
-
-[node name="BlockCenterNW" type="MeshInstance3D" parent="Arena/GroundDecorations" groups=["hole_cutout_meshes"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.5, 0.007, -13.5)
-mesh = SubResource("BoxMesh_block_quad")
-
-[node name="BlockCenterSE" type="MeshInstance3D" parent="Arena/GroundDecorations" groups=["hole_cutout_meshes"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.5, 0.007, 13.5)
-mesh = SubResource("BoxMesh_block_quad")
-
-[node name="BlockCenterSW" type="MeshInstance3D" parent="Arena/GroundDecorations" groups=["hole_cutout_meshes"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.5, 0.007, 13.5)
-mesh = SubResource("BoxMesh_block_quad")
-
-[node name="BlockDowntown" type="MeshInstance3D" parent="Arena/GroundDecorations" groups=["hole_cutout_meshes"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.5, 0.007, 36.5)
-mesh = SubResource("BoxMesh_block_quad")
-
-[node name="BlockSuburban" type="MeshInstance3D" parent="Arena/GroundDecorations" groups=["hole_cutout_meshes"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36.5, 0.007, -36.5)
-mesh = SubResource("BoxMesh_block_suburban")
-
-[node name="BlockIndustrial" type="MeshInstance3D" parent="Arena/GroundDecorations" groups=["hole_cutout_meshes"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.5, 0.007, -36.5)
-mesh = SubResource("BoxMesh_block_quad")
-
-[node name="BlockPark" type="MeshInstance3D" parent="Arena/GroundDecorations" groups=["hole_cutout_meshes"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36.5, 0.007, 36.5)
-mesh = SubResource("BoxMesh_block_park")
-
-[node name="BlockMidtownNorth" type="MeshInstance3D" parent="Arena/GroundDecorations" groups=["hole_cutout_meshes"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.007, -36.5)
-mesh = SubResource("BoxMesh_block_quad")
-
-[node name="BlockMidtownSouth" type="MeshInstance3D" parent="Arena/GroundDecorations" groups=["hole_cutout_meshes"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.007, 36.5)
-mesh = SubResource("BoxMesh_block_quad")
-
-[node name="BlockEastCorridor" type="MeshInstance3D" parent="Arena/GroundDecorations" groups=["hole_cutout_meshes"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.5, 0.007, 0)
-mesh = SubResource("BoxMesh_block_quad")
-
-[node name="BlockWestCorridor" type="MeshInstance3D" parent="Arena/GroundDecorations" groups=["hole_cutout_meshes"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36.5, 0.007, 0)
-mesh = SubResource("BoxMesh_block_quad")
-
 [node name="WallNorth" type="StaticBody3D" parent="Arena" unique_id=1566284261]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, -48.4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, -36.5)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Arena/WallNorth" unique_id=26316657]
 mesh = SubResource("BoxMesh_wall_ns")
@@ -280,7 +184,7 @@ mesh = SubResource("BoxMesh_wall_ns")
 shape = SubResource("BoxShape3D_wall_ns")
 
 [node name="WallSouth" type="StaticBody3D" parent="Arena" unique_id=1933911850]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 48.4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 36.5)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Arena/WallSouth" unique_id=668928481]
 mesh = SubResource("BoxMesh_wall_ns")
@@ -289,7 +193,7 @@ mesh = SubResource("BoxMesh_wall_ns")
 shape = SubResource("BoxShape3D_wall_ns")
 
 [node name="WallWest" type="StaticBody3D" parent="Arena" unique_id=680042253]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -48.4, 0.6, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -87.5, 0.6, 0)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Arena/WallWest" unique_id=888771336]
 mesh = SubResource("BoxMesh_wall_ew")
@@ -298,7 +202,7 @@ mesh = SubResource("BoxMesh_wall_ew")
 shape = SubResource("BoxShape3D_wall_ew")
 
 [node name="WallEast" type="StaticBody3D" parent="Arena" unique_id=1659510323]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 48.4, 0.6, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 87.5, 0.6, 0)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Arena/WallEast" unique_id=1961117164]
 mesh = SubResource("BoxMesh_wall_ew")

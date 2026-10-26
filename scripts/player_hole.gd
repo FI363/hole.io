@@ -11,6 +11,8 @@ signal hole_grown(new_radius: float)
 @export var acceleration: float = 16.0
 @export var friction: float = 14.0
 @export var arena_boundary_limit: float = 43.5
+@export var arena_boundary_x: float = 82.0
+@export var arena_boundary_z: float = 34.0
 
 @export var hole_radius: float = 1.25
 @export var growth_per_item: float = 0.04
@@ -23,6 +25,12 @@ signal hole_grown(new_radius: float)
 var swallowed_count: int = 0
 var current_velocity: Vector3 = Vector3.ZERO
 var target_radius: float = 1.25
+
+func register_shader_material(mat: ShaderMaterial) -> void:
+	if mat and not hole_shader_materials.has(mat):
+		hole_shader_materials.append(mat)
+		mat.set_shader_parameter("hole_pos", global_position)
+		mat.set_shader_parameter("hole_radius", hole_radius)
 
 var _hole_cutout: CSGCylinder3D = null
 var _submerging_collectibles: Array[Collectible] = []
@@ -77,8 +85,8 @@ func _physics_process(delta: float) -> void:
 	global_position += current_velocity * delta
 	global_position.y = 0.0
 
-	global_position.x = clampf(global_position.x, -arena_boundary_limit, arena_boundary_limit)
-	global_position.z = clampf(global_position.z, -arena_boundary_limit, arena_boundary_limit)
+	global_position.x = clampf(global_position.x, -arena_boundary_x, arena_boundary_x)
+	global_position.z = clampf(global_position.z, -arena_boundary_z, arena_boundary_z)
 
 	# 2. Process smooth growth interpolation
 	if absf(hole_radius - target_radius) > 0.001:

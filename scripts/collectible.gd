@@ -111,6 +111,45 @@ func setup_model(model_scene: PackedScene, p_scale: float = 1.0, p_mass: float =
 		center_of_mass = Vector3(0.0, -combined_aabb.size.y * 0.3, 0.0)
 		angular_damp = 3.5
 
+## Configures this collectible from an existing 3D node / submesh hierarchy
+func setup_existing_node(node_to_adopt: Node3D, p_scale: float = 1.0, p_mass: float = -1.0) -> void:
+	shape_type = "model"
+	item_scale = p_scale
+	_ensure_nodes()
+
+	if mesh_instance:
+		mesh_instance.mesh = null
+
+	node_to_adopt.owner = null
+	node_to_adopt.name = "ModelInstance"
+	add_child(node_to_adopt)
+	node_to_adopt.scale = Vector3.ONE * p_scale
+
+	var combined_aabb := _get_combined_aabb(node_to_adopt)
+	var aabb_center := combined_aabb.get_center()
+
+	node_to_adopt.position = -aabb_center
+
+	if not collision_shape:
+		collision_shape = CollisionShape3D.new()
+		collision_shape.name = "CollisionShape3D"
+		add_child(collision_shape)
+
+	var b_shape := BoxShape3D.new()
+	b_shape.size = combined_aabb.size
+	collision_shape.shape = b_shape
+	collision_shape.position = Vector3.ZERO
+
+	if p_mass > 0.0:
+		mass = p_mass
+	else:
+		mass = maxf(1.5, combined_aabb.size.x * combined_aabb.size.y * combined_aabb.size.z * 0.7)
+
+	if combined_aabb.size.y > 2.5:
+		center_of_mass_mode = RigidBody3D.CENTER_OF_MASS_MODE_CUSTOM
+		center_of_mass = Vector3(0.0, -combined_aabb.size.y * 0.3, 0.0)
+		angular_damp = 3.5
+
 func _get_combined_aabb(node: Node3D) -> AABB:
 	var total_aabb: AABB = AABB()
 	var has_aabb := false
@@ -121,8 +160,12 @@ func _get_combined_aabb(node: Node3D) -> AABB:
 	for mi in meshes:
 		if mi.mesh:
 			var mi_aabb := mi.mesh.get_aabb()
-			var local_tf := mi.transform
-			var transformed_aabb := local_tf * mi_aabb
+			var rel_tf := mi.transform
+			var cur: Node = mi.get_parent()
+			while cur and cur != node and cur is Node3D:
+				rel_tf = (cur as Node3D).transform * rel_tf
+				cur = cur.get_parent()
+			var transformed_aabb := rel_tf * mi_aabb
 			if not has_aabb:
 				total_aabb = transformed_aabb
 				has_aabb = true
