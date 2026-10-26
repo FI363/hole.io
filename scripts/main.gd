@@ -7,10 +7,7 @@ extends Node3D
 
 @export var collectible_scene: PackedScene = preload("res://scenes/collectible.tscn")
 
-const RoadNetwork = preload("res://scripts/city/road_network.gd")
-const BuildingGenerator = preload("res://scripts/city/building_generator.gd")
-const PropFactory = preload("res://scripts/city/prop_factory.gd")
-const CityValidation = preload("res://scripts/city/city_validation.gd")
+const ReferenceCity = preload("res://scripts/city/reference_map/reference_city.gd")
 
 var score: int = 0
 var total_objects: int = 0
@@ -37,44 +34,17 @@ func _unhandled_input(event: InputEvent) -> void:
 		if event.keycode == KEY_R:
 			get_tree().reload_current_scene()
 
-## Builds the authentic 200m x 200m stylized Hole.io 3D city
+## Builds the authentic low-poly 3D reference city map
 func _build_city_map() -> void:
 	if not collectibles_container:
 		return
 
-	# 1. Clean existing children
-	for child in collectibles_container.get_children():
-		child.queue_free()
-
-	var ground_decorations := get_node_or_null("Arena/GroundDecorations")
-	if ground_decorations:
-		for child in ground_decorations.get_children():
-			child.queue_free()
-
 	var arena := get_node_or_null("Arena")
 	if arena:
-		var existing_buildings := arena.get_node_or_null("CityBuildings")
-		if existing_buildings:
-			existing_buildings.queue_free()
+		ReferenceCity.build_reference_city(arena, collectibles_container, player_hole)
 
 	score = 0
-	total_objects = 0
-
-	# 2. Build 200x200 Road and Sidewalk Network
-	if ground_decorations:
-		var road_net := RoadNetwork.new()
-		road_net.build_network(ground_decorations, player_hole)
-
-	# 3. Build All 9 City Blocks with 3D Buildings
-	if arena:
-		BuildingGenerator.build_all_buildings(arena)
-
-	# 4. Populate Vehicle Fleets, Street Furniture, Trees, Urban Props & Anchors
-	PropFactory.populate_city(collectibles_container, player_hole)
 	total_objects = collectibles_container.get_child_count()
-
-	# 5. Run Integrity Validation
-	CityValidation.validate_city(self)
 
 func _on_item_swallowed(_item: Collectible, total: int) -> void:
 	score = total
