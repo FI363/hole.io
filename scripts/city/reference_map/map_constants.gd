@@ -24,7 +24,7 @@ const COLOR_ROAD_MARKING_YELLOW := Color(0.98, 0.78, 0.15)
 
 const COLOR_GRASS := Color(0.38, 0.65, 0.32)
 const COLOR_FOREST_GRASS := Color(0.28, 0.52, 0.24)
-const COLOR_MOUNTAIN_ROCK := Color(0.48, 0.48, 0.50)
+const COLOR_MOUNTAIN_ROCK := Color(0.60, 0.61, 0.64)
 const COLOR_SAND := Color(0.92, 0.82, 0.60)
 const COLOR_WATER_SHALLOW := Color(0.18, 0.62, 0.76)
 const COLOR_WATER_DEEP := Color(0.10, 0.38, 0.58)

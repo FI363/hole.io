@@ -3,8 +3,10 @@ extends RefCounted
 
 ## Builds all 3D architectural structures, skyscrapers, houses, warehouses, airport, and landmarks
 ## Fully powered by imported low-poly 3D assets from Kenney City collections
+## All buildings and houses are unattached physics Collectibles that can fall into the hole!
 
 const Constants = preload("res://scripts/city/reference_map/map_constants.gd")
+const COLLECTIBLE_SCENE: PackedScene = preload("res://scenes/collectible.tscn")
 
 # -----------------------------------------------------------------
 # PRELOADED 3D ASSETS: COMMERCIAL & SKYSCRAPERS
@@ -60,96 +62,75 @@ const MODEL_IND_B: PackedScene = preload("res://assets/kenney_city/industrial/bu
 const MODEL_IND_C: PackedScene = preload("res://assets/kenney_city/industrial/building-c.glb")
 const MODEL_IND_D: PackedScene = preload("res://assets/kenney_city/industrial/building-d.glb")
 const MODEL_IND_TANK_LARGE: PackedScene = preload("res://assets/kenney_city/industrial/detail-tank-large.glb")
-const MODEL_HANGAR_GARAGE: PackedScene = preload("res://assets/city/models/building-garage.glb")
 
-static func build_all_buildings(parent_node: Node3D) -> void:
-	var buildings_root := Node3D.new()
-	buildings_root.name = "ReferenceBuildings"
-	parent_node.add_child(buildings_root)
-
+static func build_all_buildings(collectibles_root: Node3D, arena_node: Node3D) -> void:
 	# 1. Downtown Skyscrapers, Modern Towers & Mid-Rises (Region D)
-	_build_downtown_skyscrapers(buildings_root)
+	_build_downtown_skyscrapers(collectibles_root)
 
 	# 2. Suburban Residential Neighborhood Houses (Region G)
-	_build_suburban_houses(buildings_root)
+	_build_suburban_houses(collectibles_root)
 
 	# 3. Northern Industrial Seaport, Cargo Ships & Warehouses (Region C)
-	_build_industrial_seaport(buildings_root)
+	_build_industrial_seaport(collectibles_root, arena_node)
 
 	# 4. Airport Terminal, Control Tower & Hangars (Region J)
-	_build_airport_complex(buildings_root)
+	_build_airport_complex(collectibles_root, arena_node)
 
 	# 5. Mountain Peak Observatory (Region A)
-	_build_mountain_observatory(buildings_root)
+	_build_mountain_observatory(arena_node)
 
 	# 6. School / Civic Center (Region I)
-	_build_civic_complex(buildings_root)
+	_build_civic_complex(collectibles_root)
 
 	# 7. Marina Yacht Club & Waterfront Hotel (Region M)
-	_build_marina_structures(buildings_root)
+	_build_marina_structures(collectibles_root, arena_node)
 
 	# 8. Pleasure Pier Amusement Carousel & Carnival Stalls (Region L)
-	_build_pier_amusements(buildings_root)
+	_build_pier_amusements(arena_node)
 
 # -----------------------------------------------------------------
-# 1. DOWNTOWN SKYSCRAPERS & TOWERS (Region D)
+# 1. DOWNTOWN SKYSCRAPERS & TOWERS (Region D - Unattached Collectibles)
 # -----------------------------------------------------------------
 static func _build_downtown_skyscrapers(root: Node3D) -> void:
-	var dt := Node3D.new()
-	dt.name = "DowntownSkyscrapers"
-	root.add_child(dt)
-
 	# Major Icon Towers using imported Kenney Skyscraper models:
-	# 1. Central Spire Skyscraper (West Column North: X = -9.0, Z = -32.0, Height ~22.0)
-	_build_model_building(dt, "Tower_Central_Spire", MODEL_SKYSCRAPER_C,
-		Vector3(-9.0, 0.0, -32.0), Vector3(5.2, 7.5, 5.2), Vector3(7.2, 22.0, 7.2))
+	# 1. Central Spire Skyscraper (West Column North: X = -13.5, Z = -32.0, Height ~20.0)
+	_spawn_building_collectible(root, MODEL_SKYSCRAPER_C, Vector3(-13.5, 0.0, -32.0), 4.2, 0.0, 0.60)
 
-	# 2. Stepped Corporate Mid-Rise (East Column North: X = 25.0, Z = -32.0, Height ~19.0)
-	_build_model_building(dt, "Tower_North_Stepped", MODEL_SKYSCRAPER_B,
-		Vector3(25.0, 0.0, -32.0), Vector3(5.2, 6.8, 5.2), Vector3(7.2, 19.0, 7.2))
+	# 2. Stepped Corporate Mid-Rise (East Column North: X = 25.0, Z = -32.0, Height ~18.0)
+	_spawn_building_collectible(root, MODEL_SKYSCRAPER_B, Vector3(25.0, 0.0, -32.0), 4.2, 0.0, 0.55)
 
-	# 3. Modern Diamond/Angled Glass Tower (Far East Column North: X = 42.5, Z = -32.0, Height ~24.0)
-	_build_model_building(dt, "Tower_East_Glass", MODEL_SKYSCRAPER_E,
-		Vector3(42.5, 0.0, -32.0), Vector3(4.8, 8.5, 4.8), Vector3(6.8, 24.0, 6.8))
+	# 3. Modern Diamond/Angled Glass Tower (Far East Column North: X = 42.5, Z = -32.0, Height ~22.0)
+	_spawn_building_collectible(root, MODEL_SKYSCRAPER_E, Vector3(42.5, 0.0, -32.0), 4.0, 0.0, 0.60)
 
-	# 4. Twin High-Rise Tower West (West Column South: X = -9.0, Z = 29.0, Height ~17.0)
-	_build_model_building(dt, "Tower_Twin_West", MODEL_SKYSCRAPER_D,
-		Vector3(-9.0, 0.0, 29.0), Vector3(5.0, 6.0, 5.0), Vector3(7.2, 17.0, 7.2))
+	# 4. Twin High-Rise Tower West (West Column South: X = -13.5, Z = 29.0, Height ~16.0)
+	_spawn_building_collectible(root, MODEL_SKYSCRAPER_D, Vector3(-13.5, 0.0, 29.0), 4.0, 0.0, 0.50)
 
-	# 5. Twin High-Rise Tower East (East Column South: X = 25.0, Z = 29.0, Height ~16.5)
-	_build_model_building(dt, "Tower_Twin_East", MODEL_SKYSCRAPER_A,
-		Vector3(25.0, 0.0, 29.0), Vector3(5.0, 5.8, 5.0), Vector3(7.2, 16.5, 7.2))
+	# 5. Twin High-Rise Tower East (East Column South: X = 25.0, Z = 29.0, Height ~15.5)
+	_spawn_building_collectible(root, MODEL_SKYSCRAPER_A, Vector3(25.0, 0.0, 29.0), 4.0, 0.0, 0.50)
 
 	# Downtown Surrounding Mid-Rises using imported Commercial Models:
 	var midrises: Array[Dictionary] = [
-		{"pos": Vector3(-9.0, 0.0, -8.0), "scene": MODEL_COMM_D, "scale": Vector3(6.5, 6.5, 6.5), "col": Vector3(7.0, 10.0, 7.5), "rot": 0.0},
-		{"pos": Vector3(25.0, 0.0, -8.0), "scene": MODEL_COMM_F, "scale": Vector3(6.5, 6.5, 6.5), "col": Vector3(7.0, 10.0, 7.5), "rot": PI},
-		{"pos": Vector3(42.5, 0.0, -8.0), "scene": MODEL_COMM_H, "scale": Vector3(6.0, 6.0, 6.0), "col": Vector3(6.8, 10.0, 7.5), "rot": 0.0},
-		{"pos": Vector3(-9.0, 0.0, 3.5), "scene": MODEL_COMM_J, "scale": Vector3(6.5, 6.0, 6.5), "col": Vector3(7.0, 9.5, 7.5), "rot": 0.0},
-		{"pos": Vector3(25.0, 0.0, 3.5), "scene": MODEL_COMM_K, "scale": Vector3(6.5, 6.0, 6.5), "col": Vector3(7.0, 9.5, 7.5), "rot": PI},
-		{"pos": Vector3(42.5, 0.0, 3.5), "scene": MODEL_COMM_M, "scale": Vector3(6.0, 6.0, 6.0), "col": Vector3(6.8, 9.5, 7.5), "rot": 0.0}
+		{"pos": Vector3(-13.5, 0.0, -8.0), "scene": MODEL_COMM_D, "scale": 3.6, "rot": 0.0},
+		{"pos": Vector3(25.0, 0.0, -8.0), "scene": MODEL_COMM_F, "scale": 3.6, "rot": PI},
+		{"pos": Vector3(42.5, 0.0, -8.0), "scene": MODEL_COMM_H, "scale": 3.6, "rot": 0.0},
+		{"pos": Vector3(-13.5, 0.0, 4.0), "scene": MODEL_COMM_J, "scale": 3.6, "rot": 0.0},
+		{"pos": Vector3(25.0, 0.0, 4.0), "scene": MODEL_COMM_K, "scale": 3.6, "rot": PI},
+		{"pos": Vector3(42.5, 0.0, 4.0), "scene": MODEL_COMM_M, "scale": 3.6, "rot": 0.0}
 	]
 
-	for i in range(midrises.size()):
-		var mr := midrises[i]
-		_build_model_building(dt, "MidRise_" + str(i), mr["scene"], mr["pos"], mr["scale"], mr["col"], mr["rot"])
+	for mr in midrises:
+		_spawn_building_collectible(root, mr["scene"], mr["pos"], mr["scale"], mr["rot"], 0.35)
 
 	# North-Central Big Box Supermarket (X = 8.0, Z = -57.0)
-	_build_model_building(dt, "Supermarket_Complex", MODEL_COMM_WIDE_A,
-		Vector3(8.0, 0.0, -57.0), Vector3(14.0, 6.0, 7.0), Vector3(22.0, 7.5, 9.0))
+	_spawn_building_collectible(root, MODEL_COMM_WIDE_A, Vector3(8.0, 0.0, -57.0), 9.0, 0.0, 0.45)
 
 	# Northern Gas Station / Retail (X = -12.0, Z = -57.0)
-	_build_model_building(dt, "Gas_Station", MODEL_GAS_STATION,
-		Vector3(-12.0, 0.0, -57.0), Vector3(5.5, 4.5, 5.5), Vector3(7.5, 5.5, 7.5))
+	_spawn_building_collectible(root, MODEL_GAS_STATION, Vector3(-12.0, 0.0, -57.0), 5.5, 0.0, 0.20)
 
 # -----------------------------------------------------------------
-# 2. SUBURBAN RESIDENTIAL HOUSES (Region G)
+# 2. SUBURBAN RESIDENTIAL HOUSES (Region G - Unattached Collectibles)
 # -----------------------------------------------------------------
 static func _build_suburban_houses(root: Node3D) -> void:
-	var sub := Node3D.new()
-	sub.name = "SuburbanHouses"
-	root.add_child(sub)
-
 	# 24 suburban houses arranged in residential rows
 	var house_locs: Array[Vector3] = []
 	# North suburban rows (Z = -36.0, -28.0, -20.0, -12.0, -4.0)
@@ -166,16 +147,15 @@ static func _build_suburban_houses(root: Node3D) -> void:
 		var model_scene := SUBURBAN_MODELS[i % SUBURBAN_MODELS.size()]
 		var pos := house_locs[i]
 		var rot: float = 0.0 if (i % 2 == 0) else PI
-		_build_model_building(sub, "SuburbanHouse_" + str(i), model_scene,
-			pos, Vector3(4.5, 4.5, 4.5), Vector3(5.8, 4.0, 4.8), rot)
+		_spawn_building_collectible(root, model_scene, pos, 4.5, rot, 0.15)
 
 # -----------------------------------------------------------------
 # 3. NORTHERN INDUSTRIAL SEAPORT & SHIPS (Region C)
 # -----------------------------------------------------------------
-static func _build_industrial_seaport(root: Node3D) -> void:
+static func _build_industrial_seaport(collectibles_root: Node3D, arena_node: Node3D) -> void:
 	var port := Node3D.new()
 	port.name = "IndustrialSeaport"
-	root.add_child(port)
+	arena_node.add_child(port)
 
 	# Cargo Ship 1 (East quay, facing North: X = 94.0, Z = -52.0)
 	_build_cargo_ship(port, "CargoShip_East", Vector3(94.0, -0.2, -52.0), Vector3(9.0, 7.5, 32.0), true)
@@ -183,22 +163,18 @@ static func _build_industrial_seaport(root: Node3D) -> void:
 	# Cargo Ship 2 (North quay, facing East: X = 82.0, Z = -86.0)
 	_build_cargo_ship(port, "CargoShip_North", Vector3(82.0, -0.2, -86.0), Vector3(28.0, 7.0, 8.5), false)
 
-	# Industrial Warehouses using imported models
-	_build_model_building(port, "Warehouse_1", MODEL_IND_A,
-		Vector3(64.0, 0.0, -82.0), Vector3(6.5, 5.5, 6.5), Vector3(14.0, 7.5, 9.0))
-	_build_model_building(port, "Warehouse_2", MODEL_IND_B,
-		Vector3(48.0, 0.0, -54.0), Vector3(6.0, 5.0, 6.0), Vector3(12.0, 6.5, 8.5))
-	_build_model_building(port, "Warehouse_3", MODEL_IND_C,
-		Vector3(82.0, 0.0, -48.0), Vector3(5.5, 5.0, 5.5), Vector3(11.0, 6.5, 8.0))
+	# Industrial Warehouses as unattached collectibles
+	_spawn_building_collectible(collectibles_root, MODEL_IND_A, Vector3(64.0, 0.0, -82.0), 5.5, 0.0, 0.35)
+	_spawn_building_collectible(collectibles_root, MODEL_IND_B, Vector3(48.0, 0.0, -54.0), 5.0, 0.0, 0.30)
+	_spawn_building_collectible(collectibles_root, MODEL_IND_C, Vector3(82.0, 0.0, -48.0), 4.8, 0.0, 0.30)
 
-	# Fuel Storage Tank Farm using imported Kenney Tanks
+	# Fuel Storage Tank Farm
 	var tank_locs: Array[Vector3] = [
 		Vector3(38.0, 0.0, -80.0), Vector3(46.0, 0.0, -80.0),
 		Vector3(38.0, 0.0, -72.0), Vector3(46.0, 0.0, -72.0)
 	]
-	for i in range(tank_locs.size()):
-		_build_model_building(port, "FuelTank_" + str(i), MODEL_IND_TANK_LARGE,
-			tank_locs[i], Vector3(3.8, 4.5, 3.8), Vector3(5.5, 4.5, 5.5))
+	for tl in tank_locs:
+		_spawn_building_collectible(collectibles_root, MODEL_IND_TANK_LARGE, tl, 3.8, 0.0, 0.20)
 
 	# Cargo Gantry Cranes along East Quay
 	_build_cargo_crane(port, Vector3(88.0, 0.0, -62.0))
@@ -207,20 +183,15 @@ static func _build_industrial_seaport(root: Node3D) -> void:
 # -----------------------------------------------------------------
 # 4. AIRPORT TERMINAL & HANGARS (Region J)
 # -----------------------------------------------------------------
-static func _build_airport_complex(root: Node3D) -> void:
-	var apt := Node3D.new()
-	apt.name = "AirportComplex"
-	root.add_child(apt)
-
-	# Modern Passenger Terminal using imported wide commercial model
-	_build_model_building(apt, "AirportTerminal", MODEL_COMM_WIDE_B,
-		Vector3(-56.0, 0.0, 52.0), Vector3(14.0, 5.5, 7.0), Vector3(22.0, 6.5, 10.0))
+static func _build_airport_complex(collectibles_root: Node3D, arena_node: Node3D) -> void:
+	# Passenger Terminal as unattached collectible
+	_spawn_building_collectible(collectibles_root, MODEL_COMM_WIDE_B, Vector3(-56.0, 0.0, 52.0), 8.5, 0.0, 0.40)
 
 	# Air Traffic Control Tower (ATCT) (X = -42.0, Z = 48.0, Height = 18.0)
 	var tower := StaticBody3D.new()
 	tower.name = "AirTrafficControlTower"
 	tower.position = Vector3(-42.0, 0.0, 48.0)
-	apt.add_child(tower)
+	arena_node.add_child(tower)
 
 	var col_mi := MeshInstance3D.new()
 	var cm := CylinderMesh.new()
@@ -240,7 +211,6 @@ static func _build_airport_complex(root: Node3D) -> void:
 	tow_col.position = Vector3(0.0, 8.0, 0.0)
 	tower.add_child(tow_col)
 
-	# Observation Glass Cab
 	var cab := MeshInstance3D.new()
 	var cbm := CylinderMesh.new()
 	cbm.top_radius = 2.8
@@ -251,7 +221,6 @@ static func _build_airport_complex(root: Node3D) -> void:
 	cab.position = Vector3(0.0, 16.8, 0.0)
 	tower.add_child(cab)
 
-	# Radome roof dome
 	var radome := MeshInstance3D.new()
 	var rm := SphereMesh.new()
 	rm.radius = 1.2
@@ -261,10 +230,9 @@ static func _build_airport_complex(root: Node3D) -> void:
 	radome.position = Vector3(0.0, 18.8, 0.0)
 	tower.add_child(radome)
 
-	# Two Large Aircraft Hangars using imported hangar models
+	# Two Large Aircraft Hangars as unattached collectibles
 	for hx in [-84.0, -70.0]:
-		_build_model_building(apt, "Hangar_" + str(hx), MODEL_IND_D,
-			Vector3(hx, 0.0, 52.0), Vector3(6.5, 5.5, 6.5), Vector3(12.0, 7.5, 12.0))
+		_spawn_building_collectible(collectibles_root, MODEL_IND_D, Vector3(hx, 0.0, 52.0), 5.5, 0.0, 0.35)
 
 # -----------------------------------------------------------------
 # 5. MOUNTAIN OBSERVATORY (Region A)
@@ -272,81 +240,49 @@ static func _build_airport_complex(root: Node3D) -> void:
 static func _build_mountain_observatory(root: Node3D) -> void:
 	var obs := StaticBody3D.new()
 	obs.name = "MountainObservatory"
-	obs.position = Vector3(-76.0, 12.0, -84.0)
+	obs.position = Vector3(-76.0, 13.0, -84.0)
 	root.add_child(obs)
 
 	# Main Base Building (White concrete)
 	var mi := MeshInstance3D.new()
 	var b := BoxMesh.new()
-	b.size = Vector3(12.0, 5.0, 10.0)
+	b.size = Vector3(12.0, 4.0, 10.0)
 	b.material = Constants.get_standard_material(Constants.COLOR_BUILDING_WHITE, 0.3)
 	mi.mesh = b
-	mi.position = Vector3(0.0, 2.5, 0.0)
+	mi.position = Vector3(0.0, 2.0, 0.0)
 	obs.add_child(mi)
 
 	var col := CollisionShape3D.new()
 	var cs := BoxShape3D.new()
-	cs.size = Vector3(12.0, 5.0, 10.0)
+	cs.size = Vector3(12.0, 4.0, 10.0)
 	col.shape = cs
-	col.position = Vector3(0.0, 2.5, 0.0)
+	col.position = Vector3(0.0, 2.0, 0.0)
 	obs.add_child(col)
 
-	# Telescope Dome (Hemisphere radius 3.2)
+	# Telescope Dome
 	var dome := MeshInstance3D.new()
 	var sm := SphereMesh.new()
 	sm.radius = 3.2
 	sm.height = 4.5
 	sm.material = Constants.get_standard_material(Color(0.88, 0.90, 0.94), 0.2, 0.4)
 	dome.mesh = sm
-	dome.position = Vector3(0.0, 5.8, 0.0)
+	dome.position = Vector3(0.0, 4.8, 0.0)
 	obs.add_child(dome)
 
 # -----------------------------------------------------------------
 # 6. CIVIC COMPLEX & SCHOOL (Region I)
 # -----------------------------------------------------------------
-static func _build_civic_complex(root: Node3D) -> void:
-	var civic := StaticBody3D.new()
-	civic.name = "CivicSchoolComplex"
-	civic.position = Vector3(-38.0, 0.0, 18.0)
-	root.add_child(civic)
-
-	var mi := MeshInstance3D.new()
-	var b := BoxMesh.new()
-	b.size = Vector3(14.0, 7.0, 12.0)
-	b.material = Constants.get_standard_material(Constants.COLOR_BUILDING_CREAM, 0.5)
-	mi.mesh = b
-	mi.position = Vector3(0.0, 3.5, 0.0)
-	civic.add_child(mi)
-
-	var col := CollisionShape3D.new()
-	var cs := BoxShape3D.new()
-	cs.size = Vector3(14.0, 7.0, 12.0)
-	col.shape = cs
-	col.position = Vector3(0.0, 3.5, 0.0)
-	civic.add_child(col)
-
-	# Pitched roof
-	var roof := MeshInstance3D.new()
-	var pm := PrismMesh.new()
-	pm.size = Vector3(12.5, 2.2, 14.5)
-	pm.material = Constants.get_standard_material(Constants.COLOR_ROOF_TERRACOTTA, 0.7)
-	roof.mesh = pm
-	roof.position = Vector3(0.0, 8.1, 0.0)
-	roof.rotation.y = PI * 0.5
-	civic.add_child(roof)
+static func _build_civic_complex(collectibles_root: Node3D) -> void:
+	_spawn_building_collectible(collectibles_root, MODEL_COMM_WIDE_A, Vector3(-38.0, 0.0, 18.0), 6.5, 0.0, 0.35)
 
 # -----------------------------------------------------------------
-# 7. MARINA STRUCTURES & YACHT CLUB (Region M)
+# 7. MARINA STRUCTURES (Region M)
 # -----------------------------------------------------------------
-static func _build_marina_structures(root: Node3D) -> void:
-	var marina_b := Node3D.new()
-	marina_b.name = "MarinaStructures"
-	root.add_child(marina_b)
-
-	# Octagonal Yacht Club / Restaurant (X = 14.0, Z = 58.0)
+static func _build_marina_structures(collectibles_root: Node3D, arena_node: Node3D) -> void:
+	# Octagonal Yacht Club
 	var club := StaticBody3D.new()
 	club.position = Vector3(14.0, 0.0, 58.0)
-	marina_b.add_child(club)
+	arena_node.add_child(club)
 
 	var mi := MeshInstance3D.new()
 	var cm := CylinderMesh.new()
@@ -367,23 +303,18 @@ static func _build_marina_structures(root: Node3D) -> void:
 	col.position = Vector3(0.0, 2.75, 0.0)
 	club.add_child(col)
 
-	# Waterfront Hotel / Apartments using imported commercial model
-	_build_model_building(marina_b, "WaterfrontHotel", MODEL_COMM_WIDE_A,
-		Vector3(-2.0, 0.0, 54.0), Vector3(10.0, 6.0, 6.0), Vector3(15.0, 8.5, 9.0))
+	# Waterfront Hotel / Apartments as unattached collectible
+	_spawn_building_collectible(collectibles_root, MODEL_COMM_WIDE_A, Vector3(-2.0, 0.0, 54.0), 6.5, 0.0, 0.35)
 
 # -----------------------------------------------------------------
 # 8. PLEASURE PIER AMUSEMENTS & CAROUSEL (Region L)
 # -----------------------------------------------------------------
 static func _build_pier_amusements(root: Node3D) -> void:
-	var pier_a := Node3D.new()
-	pier_a.name = "PierAmusements"
-	root.add_child(pier_a)
-
 	var carousel := Node3D.new()
+	carousel.name = "PierCarousel"
 	carousel.position = Vector3(60.0, 0.3, 86.0)
-	pier_a.add_child(carousel)
+	root.add_child(carousel)
 
-	# Circular base platform
 	var base := MeshInstance3D.new()
 	var bm := CylinderMesh.new()
 	bm.top_radius = 4.5
@@ -394,7 +325,6 @@ static func _build_pier_amusements(root: Node3D) -> void:
 	base.position = Vector3(0.0, 0.25, 0.0)
 	carousel.add_child(base)
 
-	# Central spindle
 	var spindle := MeshInstance3D.new()
 	var sm := CylinderMesh.new()
 	sm.top_radius = 0.6
@@ -405,7 +335,6 @@ static func _build_pier_amusements(root: Node3D) -> void:
 	spindle.position = Vector3(0.0, 2.1, 0.0)
 	carousel.add_child(spindle)
 
-	# Colorful Carnival Canopy Cone (Striped Red & White)
 	var canopy := MeshInstance3D.new()
 	var cm := CylinderMesh.new()
 	cm.top_radius = 0.1
@@ -417,28 +346,20 @@ static func _build_pier_amusements(root: Node3D) -> void:
 	carousel.add_child(canopy)
 
 # -----------------------------------------------------------------
-# HELPER BUILDERS
+# SPAWNER & HELPER FUNCTIONS
 # -----------------------------------------------------------------
-static func _build_model_building(parent: Node3D, name: String, scene: PackedScene, pos: Vector3, scale_val: Vector3, col_size: Vector3, rot_y: float = 0.0) -> StaticBody3D:
-	var body := StaticBody3D.new()
-	body.name = name
-	body.position = pos
-	body.rotation.y = rot_y
-	parent.add_child(body)
-
-	var model_inst := scene.instantiate() as Node3D
-	model_inst.name = "ModelMesh"
-	model_inst.scale = scale_val
-	body.add_child(model_inst)
-
-	var col := CollisionShape3D.new()
-	var cs := BoxShape3D.new()
-	cs.size = col_size
-	col.shape = cs
-	col.position = Vector3(0.0, col_size.y * 0.5, 0.0)
-	body.add_child(col)
-
-	return body
+static func _spawn_building_collectible(parent: Node3D, model_scene: PackedScene, pos: Vector3, scale_val: float, rot_y: float = 0.0, growth: float = 0.25) -> Collectible:
+	var item := COLLECTIBLE_SCENE.instantiate() as Collectible
+	parent.add_child(item)
+	item.setup_model(model_scene, scale_val)
+	var col_shape := item.get_node_or_null("CollisionShape3D") as CollisionShape3D
+	var half_h: float = 2.0
+	if col_shape and col_shape.shape is BoxShape3D:
+		half_h = (col_shape.shape as BoxShape3D).size.y * 0.5
+	item.global_position = Vector3(pos.x, maxf(pos.y, half_h + 0.06), pos.z)
+	item.rotation.y = rot_y
+	item.set_meta("growth_value", growth)
+	return item
 
 static func _build_cargo_ship(parent: Node3D, name: String, pos: Vector3, size: Vector3, is_north_south: bool) -> StaticBody3D:
 	var ship := StaticBody3D.new()
@@ -446,7 +367,6 @@ static func _build_cargo_ship(parent: Node3D, name: String, pos: Vector3, size: 
 	ship.position = pos
 	parent.add_child(ship)
 
-	# Lower Hull
 	var hull := MeshInstance3D.new()
 	var hb := BoxMesh.new()
 	hb.size = Vector3(size.x, size.y * 0.6, size.z)
@@ -462,7 +382,6 @@ static func _build_cargo_ship(parent: Node3D, name: String, pos: Vector3, size: 
 	col.position = Vector3(0.0, size.y * 0.5, 0.0)
 	ship.add_child(col)
 
-	# Bridge Superstructure
 	var bridge := MeshInstance3D.new()
 	var bb := BoxMesh.new()
 	var bridge_l := size.z * 0.22 if is_north_south else size.x * 0.22
@@ -474,7 +393,6 @@ static func _build_cargo_ship(parent: Node3D, name: String, pos: Vector3, size: 
 	bridge.position = Vector3(0.0, size.y * 0.8, b_offset) if is_north_south else Vector3(b_offset, size.y * 0.8, 0.0)
 	ship.add_child(bridge)
 
-	# Containers on Deck
 	var colors: Array[Color] = [Constants.COLOR_CONTAINER_RED, Constants.COLOR_CONTAINER_BLUE, Constants.COLOR_CONTAINER_GREEN, Constants.COLOR_CONTAINER_YELLOW]
 	for i in range(6):
 		var c_mesh := MeshInstance3D.new()

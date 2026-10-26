@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://d0stih06ar1ab"
-path="res://.godot/imported/ZombieCity_full_4.png-0db36b39793b5ed35394eb8ff3c56cef.ctex"
+path.s3tc="res://.godot/imported/ZombieCity_full_4.png-0db36b39793b5ed35394eb8ff3c56cef.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "18dc0e7a3a6f53b348dec55554496153"
@@ -14,11 +15,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/external_cities/ZombieCity_full_4.png"
-dest_files=["res://.godot/imported/ZombieCity_full_4.png-0db36b39793b5ed35394eb8ff3c56cef.ctex"]
+dest_files=["res://.godot/imported/ZombieCity_full_4.png-0db36b39793b5ed35394eb8ff3c56cef.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +41,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

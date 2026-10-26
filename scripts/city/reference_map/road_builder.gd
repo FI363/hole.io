@@ -1,8 +1,8 @@
 class_name RefRoadBuilder
 extends RefCounted
 
-## Builds the complete road network, roundabouts, bridges, runways, and pedestrian sidewalks
-## Matches the reference image layout precisely
+## Builds the complete road network, serpentine mountain switchbacks, roundabouts, bridges, runways, and park paths
+## Faithfully reproduces the reference image layout with smooth curves and authentic markings
 
 const Constants = preload("res://scripts/city/reference_map/map_constants.gd")
 
@@ -19,6 +19,7 @@ static func build_roads(parent_node: Node3D, player_hole: PlayerHole) -> void:
 	var yellow_mat := Constants.get_cutout_material(Constants.COLOR_ROAD_MARKING_YELLOW, 0.50)
 	var wood_mat := Constants.get_standard_material(Constants.COLOR_PIER_WOOD, 0.70)
 	var bridge_red := Constants.get_standard_material(Constants.COLOR_BRIDGE_RED, 0.40)
+	var guardrail_mat := Constants.get_standard_material(Color(0.85, 0.86, 0.88), 0.4, 0.3)
 
 	if player_hole:
 		player_hole.register_shader_material(asphalt_mat)
@@ -29,43 +30,46 @@ static func build_roads(parent_node: Node3D, player_hole: PlayerHole) -> void:
 		player_hole.register_shader_material(yellow_mat)
 
 	# 1. Four Major City Roundabouts
-	_build_roundabouts(roads_root, asphalt_mat, sidewalk_mat, kerb_mat)
+	_build_roundabouts(roads_root, asphalt_mat, kerb_mat)
 
-	# 2. Downtown Avenue Grid & Grand Promenade Corridors
-	_build_downtown_grid(roads_root, asphalt_mat, sidewalk_mat, kerb_mat)
+	# 2. Mountain Serpentine Switchback Road (Matching Image 4)
+	_build_mountain_switchback(roads_root, asphalt_mat, guardrail_mat)
 
-	# 3. Suburban Neighborhood Residential Streets (Region G)
+	# 3. Downtown Avenue Grid & Grand Promenade (Matching Images 3 & 5)
+	_build_downtown_grid(roads_root, asphalt_mat, sidewalk_mat)
+
+	# 4. Suburban Residential Street Network (Matching Image 1)
 	_build_suburban_streets(roads_root, asphalt_mat, sidewalk_mat)
 
-	# 4. Northern Approach & Mountain Switchback Roads (Region A & B)
-	_build_mountain_roads(roads_root, asphalt_mat)
+	# 5. Central Park Winding Walking Paths (Matching Image 3)
+	_build_park_paths(roads_root, sidewalk_mat)
 
-	# 5. Airport Runway, Taxiways, and Apron (Region J)
+	# 6. Airport Runway, Taxiways, and Apron (Region J)
 	_build_airport_runway_system(roads_root, runway_mat, white_mat, yellow_mat)
 
-	# 6. Eastern Coastal Highway & Elevated Bridge (Region O)
+	# 7. Eastern Coastal Highway & Elevated Bridge (Region O)
 	_build_coastal_highway(roads_root, asphalt_mat, yellow_mat)
 
-	# 7. Red Steel Truss Bridge (Region O, crossing water to East)
+	# 8. Red Steel Truss Bridge (Crossing eastern water channel)
 	_build_red_truss_bridge(roads_root, asphalt_mat, bridge_red)
 
-	# 8. Wooden Pleasure Pier & Boardwalk (Region L)
+	# 9. Wooden Pleasure Pier & Boardwalk (Region L)
 	_build_pleasure_pier(roads_root, wood_mat)
 
-	# 9. Pedestrian Crossings and Lane Markings
-	_build_lane_markings(roads_root, white_mat, yellow_mat)
+	# 10. Pedestrian Crossings and Markings
+	_build_lane_markings(roads_root, white_mat)
 
 # -----------------------------------------------------------------
 # 1. ROUNDABOUTS
 # -----------------------------------------------------------------
-static func _build_roundabouts(parent: Node3D, asphalt: Material, sidewalk: Material, kerb: Material) -> void:
+static func _build_roundabouts(parent: Node3D, asphalt: Material, kerb: Material) -> void:
 	var roundabouts_node := Node3D.new()
 	roundabouts_node.name = "Roundabouts"
 	parent.add_child(roundabouts_node)
 
 	var list: Array[Dictionary] = [
 		{"name": "Roundabout_NW", "pos": Vector3(-42.0, 0.02, -44.0), "r_out": 6.5, "r_in": 3.2},
-		{"name": "Roundabout_West", "pos": Vector3(-84.0, 0.02, 0.0), "r_out": 6.0, "r_in": 2.8},
+		{"name": "Roundabout_West", "pos": Vector3(-75.0, 0.02, 35.0), "r_out": 6.5, "r_in": 3.2},
 		{"name": "Roundabout_SW_Airport", "pos": Vector3(-26.0, 0.02, 42.0), "r_out": 6.5, "r_in": 3.2},
 		{"name": "Roundabout_SE_Coast", "pos": Vector3(52.0, 0.02, 42.0), "r_out": 6.5, "r_in": 3.2}
 	]
@@ -75,7 +79,7 @@ static func _build_roundabouts(parent: Node3D, asphalt: Material, sidewalk: Mate
 		var ro: float = rb["r_out"]
 		var ri: float = rb["r_in"]
 
-		# Outer asphalt ring
+		# Asphalt ring
 		var ring := MeshInstance3D.new()
 		var cyl := CylinderMesh.new()
 		cyl.top_radius = ro
@@ -88,7 +92,7 @@ static func _build_roundabouts(parent: Node3D, asphalt: Material, sidewalk: Mate
 		ring.add_to_group("hole_cutout_meshes")
 		roundabouts_node.add_child(ring)
 
-		# Central landscaped island
+		# Kerbed center island
 		var island := MeshInstance3D.new()
 		var ic := CylinderMesh.new()
 		ic.top_radius = ri
@@ -100,7 +104,7 @@ static func _build_roundabouts(parent: Node3D, asphalt: Material, sidewalk: Mate
 		island.position = Vector3(p.x, p.y + 0.08, p.z)
 		roundabouts_node.add_child(island)
 
-		# Green lawn inside center island
+		# Green center lawn
 		var grass_center := MeshInstance3D.new()
 		var gc := CylinderMesh.new()
 		gc.top_radius = ri - 0.3
@@ -114,9 +118,78 @@ static func _build_roundabouts(parent: Node3D, asphalt: Material, sidewalk: Mate
 		roundabouts_node.add_child(grass_center)
 
 # -----------------------------------------------------------------
-# 2. DOWNTOWN GRID & GRAND PROMENADE
+# 2. MOUNTAIN SERPENTINE SWITCHBACK (Matching Image 4)
 # -----------------------------------------------------------------
-static func _build_downtown_grid(parent: Node3D, asphalt: Material, sidewalk: Material, kerb: Material) -> void:
+static func _build_mountain_switchback(parent: Node3D, asphalt: Material, guardrail: Material) -> void:
+	var mtn_roads := Node3D.new()
+	mtn_roads.name = "MountainSwitchbackRoads"
+	parent.add_child(mtn_roads)
+
+	# Mountain switchback path points curving across the mountain face matching Image 4
+	var waypoints: Array[Vector3] = [
+		Vector3(-66.0, 0.25, -42.0), # Branch off arterial near tunnel
+		Vector3(-58.0, 1.8, -46.0),
+		Vector3(-48.0, 3.8, -52.0),  # Hairpin 1 turn (East)
+		Vector3(-52.0, 5.6, -60.0),
+		Vector3(-64.0, 7.8, -64.0),  # Hairpin 2 turn (West)
+		Vector3(-56.0, 10.0, -72.0), # Hairpin 3 turn (East)
+		Vector3(-66.0, 12.0, -78.0), # Approach summit
+		Vector3(-74.0, 13.15, -80.0) # Summit parking / turnaround
+	]
+
+	# Build smooth ribbon road along waypoints
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	st.set_material(asphalt)
+
+	var road_w: float = 4.8
+	for i in range(waypoints.size() - 1):
+		var p0 := waypoints[i] + Vector3(0.0, 0.20, 0.0)
+		var p1 := waypoints[i + 1] + Vector3(0.0, 0.20, 0.0)
+		var dir := (p1 - p0).normalized()
+		var norm := Vector3(-dir.z, 0.0, dir.x).normalized()
+
+		var l0 := p0 - norm * (road_w * 0.5)
+		var r0 := p0 + norm * (road_w * 0.5)
+		var l1 := p1 - norm * (road_w * 0.5)
+		var r1 := p1 + norm * (road_w * 0.5)
+
+		_add_flat_quad(st, l0, r0, r1, l1)
+
+		# Add outer guardrail on elevated switchbacks (Y > 1.5)
+		if p0.y > 1.5:
+			var rail := MeshInstance3D.new()
+			var rb := BoxMesh.new()
+			rb.size = Vector3(0.12, 0.65, (p1 - p0).length())
+			rb.material = guardrail
+			rail.mesh = rb
+			rail.position = (r0 + r1) * 0.5 + Vector3(0.0, 0.35, 0.0)
+			mtn_roads.add_child(rail)
+			rail.look_at(r1 + Vector3(0.0, 0.35, 0.0), Vector3.UP)
+
+	var road_mesh := st.commit()
+	var road_mi := MeshInstance3D.new()
+	road_mi.mesh = road_mesh
+	road_mi.add_to_group("hole_cutout_meshes")
+	mtn_roads.add_child(road_mi)
+
+	# Summit Vehicle Turnaround Loop (X = -74.0, Z = -80.0 at Y = 13.15)
+	var loop := MeshInstance3D.new()
+	var lc := CylinderMesh.new()
+	lc.top_radius = 7.5
+	lc.bottom_radius = 7.5
+	lc.height = 0.02
+	lc.radial_segments = 32
+	lc.material = asphalt
+	loop.mesh = lc
+	loop.position = Vector3(-74.0, 13.25, -80.0)
+	loop.add_to_group("hole_cutout_meshes")
+	mtn_roads.add_child(loop)
+
+# -----------------------------------------------------------------
+# 3. DOWNTOWN GRID & GRAND PROMENADE (Matching Images 3 & 5)
+# -----------------------------------------------------------------
+static func _build_downtown_grid(parent: Node3D, asphalt: Material, sidewalk: Material) -> void:
 	var grid := Node3D.new()
 	grid.name = "DowntownAvenues"
 	parent.add_child(grid)
@@ -144,237 +217,237 @@ static func _build_downtown_grid(parent: Node3D, asphalt: Material, sidewalk: Ma
 
 	# East-West Cross Streets:
 	# North Cross (Z = -44.0)
-	_add_road_strip(grid, asphalt, Vector3(5.0, 0.02, -44.0), Vector3(96.0, 0.02, 8.0))
+	_add_road_strip(grid, asphalt, Vector3(5.0, 0.02, -44.0), Vector3(96.0, 0.02, 7.0))
 	# Mid-North Cross (Z = -20.0)
-	_add_road_strip(grid, asphalt, Vector3(5.0, 0.02, -20.0), Vector3(96.0, 0.02, 7.5))
+	_add_road_strip(grid, asphalt, Vector3(5.0, 0.02, -20.0), Vector3(96.0, 0.02, 7.0))
 	# Center Boulevard (Z = 16.0)
 	_add_road_strip(grid, asphalt, Vector3(5.0, 0.02, 16.0), Vector3(96.0, 0.02, 8.0))
 	# South Cross (Z = 42.0)
-	_add_road_strip(grid, asphalt, Vector3(13.0, 0.02, 42.0), Vector3(80.0, 0.02, 8.5))
+	_add_road_strip(grid, asphalt, Vector3(13.0, 0.02, 42.0), Vector3(80.0, 0.02, 8.0))
 
 	# Northern Industrial Port Access Road (X: 30 to 85, Z: -72)
 	_add_road_strip(grid, asphalt, Vector3(58.0, 0.02, -72.0), Vector3(56.0, 0.02, 8.0))
 	_add_road_strip(grid, asphalt, Vector3(74.0, 0.02, -58.0), Vector3(8.0, 0.02, 36.0))
 
 # -----------------------------------------------------------------
-# 3. SUBURBAN RESIDENTIAL STREETS (Region G)
+# 4. SUBURBAN STREET NETWORK (Matching Image 1)
 # -----------------------------------------------------------------
 static func _build_suburban_streets(parent: Node3D, asphalt: Material, sidewalk: Material) -> void:
 	var sub := Node3D.new()
 	sub.name = "SuburbanStreets"
 	parent.add_child(sub)
 
-	# Western Connecting Avenue (Z = 0.0, X: -84 to -12)
-	_add_road_strip(sub, asphalt, Vector3(-48.0, 0.02, 0.0), Vector3(72.0, 0.02, 6.5))
+	# Western Curved Arterial (connecting Tunnel, NW Roundabout, and SW Roundabout)
+	# Tunnel exit approach (Z: -45 to -36)
+	_add_road_strip(sub, asphalt, Vector3(-72.0, 0.02, -40.0), Vector3(6.5, 0.02, 12.0))
 
-	# Suburban North Loop (Z = -20.0, X: -84 to -42)
-	_add_road_strip(sub, asphalt, Vector3(-63.0, 0.02, -20.0), Vector3(44.0, 0.02, 5.5))
+	# Western perimeter avenue (X = -84.0, Z: -36 to 30)
+	_add_road_strip(sub, asphalt, Vector3(-84.0, 0.02, -3.0), Vector3(6.5, 0.02, 66.0))
 
-	# Residential Cross Streets
-	_add_road_strip(sub, asphalt, Vector3(-70.0, 0.02, -10.0), Vector3(5.5, 0.02, 22.0))
-	_add_road_strip(sub, asphalt, Vector3(-54.0, 0.02, -10.0), Vector3(5.5, 0.02, 22.0))
+	# Connecting avenue to West Roundabout (Z = 0.0)
+	_add_road_strip(sub, asphalt, Vector3(-51.0, 0.02, 0.0), Vector3(66.0, 0.02, 6.5))
 
-	# Stadium Access Road (Z = 32.0, X: -72 to -26)
-	_add_road_strip(sub, asphalt, Vector3(-49.0, 0.02, 32.0), Vector3(48.0, 0.02, 6.0))
+	# Residential Cross Streets:
+	# North suburban street (Z = -20.0, X: -84 to -26)
+	_add_road_strip(sub, asphalt, Vector3(-55.0, 0.02, -20.0), Vector3(58.0, 0.02, 5.5))
 
-# -----------------------------------------------------------------
-# 4. MOUNTAIN ROADS & SWITCHBACK (Region A & B)
-# -----------------------------------------------------------------
-static func _build_mountain_roads(parent: Node3D, asphalt: Material) -> void:
-	var mtn_roads := Node3D.new()
-	mtn_roads.name = "MountainRoads"
-	parent.add_child(mtn_roads)
+	# Mid suburban street (Z = -12.0, X: -84 to -26)
+	_add_road_strip(sub, asphalt, Vector3(-55.0, 0.02, -12.0), Vector3(58.0, 0.02, 5.5))
 
-	# Approach road from NW Roundabout to mountain base
-	_add_road_strip(mtn_roads, asphalt, Vector3(-58.0, 0.02, -44.0), Vector3(32.0, 0.02, 6.5))
-
-	# Mountain Switchback Ledges:
-	# Leg 1: Climbing west toward tunnel entrance
-	_add_road_strip(mtn_roads, asphalt, Vector3(-76.0, 0.02, -48.0), Vector3(6.0, 0.02, 16.0))
-	# Hairpin ledge 1 (Y = 2.0)
-	_add_road_strip(mtn_roads, asphalt, Vector3(-68.0, 2.0, -60.0), Vector3(16.0, 0.04, 5.5))
-	# Leg 2: Climbing north toward ridge (Y = 4.5)
-	_add_road_strip(mtn_roads, asphalt, Vector3(-80.0, 4.5, -68.0), Vector3(5.5, 0.04, 18.0))
-	# Hairpin ledge 2 (Y = 7.0)
-	_add_road_strip(mtn_roads, asphalt, Vector3(-74.0, 7.0, -78.0), Vector3(18.0, 0.04, 5.5))
-	# Leg 3: Summit Road to Peak Observatory (Y = 10.0)
-	_add_road_strip(mtn_roads, asphalt, Vector3(-80.0, 10.0, -82.0), Vector3(5.5, 0.04, 12.0))
+	# Stadium Access Avenue (Z = 35.0, X: -75 to -26)
+	_add_road_strip(sub, asphalt, Vector3(-50.0, 0.02, 35.0), Vector3(50.0, 0.02, 6.5))
 
 # -----------------------------------------------------------------
-# 5. AIRPORT RUNWAY & TAXIWAY (Region J)
+# 5. CENTRAL PARK WINDING PATHS (Matching Image 3)
+# -----------------------------------------------------------------
+static func _build_park_paths(parent: Node3D, path_mat: Material) -> void:
+	var paths := Node3D.new()
+	paths.name = "ParkWalkingPaths"
+	parent.add_child(paths)
+
+	# Organic beige footpaths winding throughout the park
+	var path_loops: Array[Array] = [
+		# Outer loop around the park perimeter
+		[Vector3(-24.0, 0.025, -38.0), Vector3(-6.0, 0.025, -36.0), Vector3(-3.0, 0.025, -20.0),
+		 Vector3(-4.0, 0.025, 6.0), Vector3(-18.0, 0.025, 4.0), Vector3(-24.0, 0.025, -15.0), Vector3(-24.0, 0.025, -38.0)],
+		# Inner loop around the lake
+		[Vector3(-14.0, 0.025, -30.0), Vector3(-5.0, 0.025, -24.0), Vector3(-5.0, 0.025, -6.0),
+		 Vector3(-12.0, 0.025, -2.0), Vector3(-18.0, 0.025, -12.0), Vector3(-14.0, 0.025, -30.0)]
+	]
+
+	for loop in path_loops:
+		var st := SurfaceTool.new()
+		st.begin(Mesh.PRIMITIVE_TRIANGLES)
+		st.set_material(path_mat)
+		var pw: float = 1.6
+		for i in range(loop.size() - 1):
+			var p0: Vector3 = loop[i]
+			var p1: Vector3 = loop[i + 1]
+			var dir := (p1 - p0).normalized()
+			var norm := Vector3(-dir.z, 0.0, dir.x).normalized()
+			var l0 := p0 - norm * (pw * 0.5)
+			var r0 := p0 + norm * (pw * 0.5)
+			var l1 := p1 - norm * (pw * 0.5)
+			var r1 := p1 + norm * (pw * 0.5)
+			_add_flat_quad(st, l0, r0, r1, l1)
+		var p_mesh := st.commit()
+		var p_mi := MeshInstance3D.new()
+		p_mi.mesh = p_mesh
+		p_mi.add_to_group("hole_cutout_meshes")
+		paths.add_child(p_mi)
+
+# -----------------------------------------------------------------
+# 6. AIRPORT RUNWAY & TAXIWAYS
 # -----------------------------------------------------------------
 static func _build_airport_runway_system(parent: Node3D, runway_mat: Material, white_mat: Material, yellow_mat: Material) -> void:
-	var airport := Node3D.new()
-	airport.name = "AirportRunwaySystem"
-	parent.add_child(airport)
+	var apt_roads := Node3D.new()
+	apt_roads.name = "AirportRunwaySystem"
+	parent.add_child(apt_roads)
 
-	# Main Runway 09/27 (Length: 64.0, Width: 8.5 at Z = 76.0, X: -88 to -24)
-	_add_road_strip(airport, runway_mat, Vector3(-56.0, 0.02, 76.0), Vector3(64.0, 0.02, 8.5))
+	# Main Runway 09/27 (Length: 82.0, Width: 14.0 at X = -55.0, Z = 82.0)
+	_add_road_strip(apt_roads, runway_mat, Vector3(-55.0, 0.02, 82.0), Vector3(82.0, 0.02, 14.0))
 
-	# Runway Threshold Piano Keys (West end at X = -85.0, East end at X = -27.0)
-	for side_x in [-85.0, -27.0]:
-		for stripe_z in range(-3, 4):
-			var key := MeshInstance3D.new()
-			var kb := BoxMesh.new()
-			kb.size = Vector3(2.8, 0.04, 0.5)
-			kb.material = white_mat
-			key.mesh = kb
-			key.position = Vector3(side_x, 0.03, 76.0 + stripe_z * 0.9)
-			key.add_to_group("hole_cutout_meshes")
-			airport.add_child(key)
+	# Parallel Taxiway (Length: 72.0, Width: 7.0 at Z = 72.0)
+	_add_road_strip(apt_roads, runway_mat, Vector3(-55.0, 0.02, 72.0), Vector3(72.0, 0.02, 7.0))
+
+	# Connecting High-Speed Taxiway Exits
+	for tx in [-80.0, -55.0, -30.0]:
+		_add_road_strip(apt_roads, runway_mat, Vector3(tx, 0.02, 77.0), Vector3(6.5, 0.02, 10.0))
+
+	# Apron Tarmac (Z: 60 to 70, X: -68 to -30)
+	_add_road_strip(apt_roads, runway_mat, Vector3(-49.0, 0.02, 65.0), Vector3(42.0, 0.02, 12.0))
+
+	# Runway Threshold "Piano Keys"
+	for end_x in [-92.0, -18.0]:
+		for bar in range(-4, 5):
+			var mi := MeshInstance3D.new()
+			var b := BoxMesh.new()
+			b.size = Vector3(5.5, 0.02, 0.9)
+			b.material = white_mat
+			mi.mesh = b
+			mi.position = Vector3(end_x, 0.03, 82.0 + bar * 1.3)
+			mi.add_to_group("hole_cutout_meshes")
+			apt_roads.add_child(mi)
 
 	# Runway Centerline Dashes
-	for cx in range(-78, -32, 6):
-		var dash := MeshInstance3D.new()
-		var db := BoxMesh.new()
-		db.size = Vector3(3.2, 0.04, 0.4)
-		db.material = white_mat
-		dash.mesh = db
-		dash.position = Vector3(float(cx), 0.03, 76.0)
-		dash.add_to_group("hole_cutout_meshes")
-		airport.add_child(dash)
-
-	# Parallel Taxiway (Z = 66.0, X: -82 to -30, width 5.0)
-	_add_road_strip(airport, runway_mat, Vector3(-56.0, 0.02, 66.0), Vector3(52.0, 0.02, 5.0))
-
-	# Connecting Taxiway Turnoffs
-	_add_road_strip(airport, runway_mat, Vector3(-78.0, 0.02, 71.0), Vector3(4.5, 0.02, 10.0))
-	_add_road_strip(airport, runway_mat, Vector3(-56.0, 0.02, 71.0), Vector3(4.5, 0.02, 10.0))
-	_add_road_strip(airport, runway_mat, Vector3(-34.0, 0.02, 71.0), Vector3(4.5, 0.02, 10.0))
-
-	# Aircraft Apron & Parking Stands (Z = 58.0, X: -64 to -34, size 30 x 12)
-	_add_road_strip(airport, runway_mat, Vector3(-49.0, 0.02, 58.0), Vector3(30.0, 0.02, 12.0))
-
-	# Airport Terminal Access Road from SW Roundabout
-	_add_road_strip(airport, runway_mat, Vector3(-26.0, 0.02, 54.0), Vector3(6.5, 0.02, 24.0))
+	for cx in range(-82, -22, 8):
+		var mi := MeshInstance3D.new()
+		var b := BoxMesh.new()
+		b.size = Vector3(4.8, 0.02, 0.7)
+		b.material = white_mat
+		mi.mesh = b
+		mi.position = Vector3(float(cx), 0.03, 82.0)
+		mi.add_to_group("hole_cutout_meshes")
+		apt_roads.add_child(mi)
 
 # -----------------------------------------------------------------
-# 6. COASTAL HIGHWAY & ELEVATED BRIDGE (Region O)
+# 7. COASTAL HIGHWAY & ELEVATED BRIDGE
 # -----------------------------------------------------------------
 static func _build_coastal_highway(parent: Node3D, asphalt: Material, yellow_mat: Material) -> void:
 	var hwy := Node3D.new()
 	hwy.name = "CoastalHighway"
 	parent.add_child(hwy)
 
-	# Elevated Highway Bridge sweeping across eastern ocean bay (X = 72.0, Z = 12.0)
-	var deck := MeshInstance3D.new()
-	var db := BoxMesh.new()
-	db.size = Vector3(8.5, 0.4, 38.0)
-	db.material = asphalt
-	deck.mesh = db
-	deck.position = Vector3(72.0, 1.2, 12.0)
-	hwy.add_child(deck)
+	# Elevated highway ramp crossing the water on the East side (X = 66.0, Z = 14.0)
+	var ramp := MeshInstance3D.new()
+	var rb := BoxMesh.new()
+	rb.size = Vector3(7.5, 0.4, 48.0)
+	rb.material = asphalt
+	ramp.mesh = rb
+	ramp.position = Vector3(66.0, 0.25, 14.0)
+	ramp.add_to_group("hole_cutout_meshes")
+	hwy.add_child(ramp)
 
-	# Concrete Bridge Support Pillars
-	var pillar_mat := Constants.get_standard_material(Constants.COLOR_KERB, 0.7)
-	for z in [-2.0, 12.0, 26.0]:
-		var pillar := MeshInstance3D.new()
-		var pb := CylinderMesh.new()
-		pb.top_radius = 1.2
-		pb.bottom_radius = 1.4
-		pb.height = 2.4
-		pb.material = pillar_mat
-		pillar.mesh = pb
-		pillar.position = Vector3(72.0, 0.0, float(z))
-		hwy.add_child(pillar)
-
-	# Guardrails
-	var rail_mat := Constants.get_standard_material(Color(0.85, 0.85, 0.88), 0.4)
-	for side in [-4.0, 4.0]:
-		var rail := MeshInstance3D.new()
-		var rb := BoxMesh.new()
-		rb.size = Vector3(0.18, 0.75, 38.0)
-		rb.material = rail_mat
-		rail.mesh = rb
-		rail.position = Vector3(72.0 + side, 1.7, 12.0)
-		hwy.add_child(rail)
+	# Concrete bridge support piers
+	var pier_mat := Constants.get_standard_material(Color(0.72, 0.74, 0.76), 0.5)
+	for pz in [-6.0, 14.0, 34.0]:
+		var p_col := MeshInstance3D.new()
+		var pb := BoxMesh.new()
+		pb.size = Vector3(7.0, 0.8, 1.8)
+		pb.material = pier_mat
+		p_col.mesh = pb
+		p_col.position = Vector3(66.0, -0.2, pz)
+		hwy.add_child(p_col)
 
 # -----------------------------------------------------------------
-# 7. RED STEEL TRUSS BRIDGE (Region O)
+# 8. RED STEEL TRUSS BRIDGE (Crossing eastern water channel)
 # -----------------------------------------------------------------
 static func _build_red_truss_bridge(parent: Node3D, asphalt: Material, bridge_red: Material) -> void:
 	var bridge_node := Node3D.new()
-	bridge_node.name = "RedSteelBridge"
+	bridge_node.name = "RedSteelTrussBridge"
 	parent.add_child(bridge_node)
 
-	# Bridge Deck across water from SE Roundabout to East (X = 80.0, Z = 42.0)
+	# Bridge Deck (Spans X: 64 to 98 at Z = 42.0)
 	var deck := MeshInstance3D.new()
 	var db := BoxMesh.new()
-	db.size = Vector3(28.0, 0.4, 7.5)
+	db.size = Vector3(34.0, 0.4, 7.5)
 	db.material = asphalt
 	deck.mesh = db
-	deck.position = Vector3(80.0, 0.4, 42.0)
+	deck.position = Vector3(81.0, 0.25, 42.0)
+	deck.add_to_group("hole_cutout_meshes")
 	bridge_node.add_child(deck)
 
-	# Red Steel Truss Framework on North and South sides
-	for side in [-3.9, 3.9]:
-		var truss_top := MeshInstance3D.new()
-		var tb := BoxMesh.new()
-		tb.size = Vector3(28.0, 0.35, 0.35)
-		tb.material = bridge_red
-		truss_top.mesh = tb
-		truss_top.position = Vector3(80.0, 3.4, 42.0 + side)
-		bridge_node.add_child(truss_top)
+	# Red Steel Trusses (North and South sides)
+	for side in [-3.8, 3.8]:
+		var lower_chord := MeshInstance3D.new()
+		var lcb := BoxMesh.new()
+		lcb.size = Vector3(34.0, 0.35, 0.3)
+		lcb.material = bridge_red
+		lower_chord.mesh = lcb
+		lower_chord.position = Vector3(81.0, 0.5, 42.0 + side)
+		bridge_node.add_child(lower_chord)
 
-		# Vertical posts
-		for x in range(68, 94, 5):
-			var post := MeshInstance3D.new()
-			var pb := BoxMesh.new()
-			pb.size = Vector3(0.35, 3.0, 0.35)
-			pb.material = bridge_red
-			post.mesh = pb
-			post.position = Vector3(float(x), 1.9, 42.0 + side)
-			bridge_node.add_child(post)
+		var upper_chord := MeshInstance3D.new()
+		var ucb := BoxMesh.new()
+		ucb.size = Vector3(34.0, 0.35, 0.3)
+		ucb.material = bridge_red
+		upper_chord.mesh = ucb
+		upper_chord.position = Vector3(81.0, 2.8, 42.0 + side)
+		bridge_node.add_child(upper_chord)
+
+		for bx in range(66, 98, 4):
+			var vert := MeshInstance3D.new()
+			var vb := BoxMesh.new()
+			vb.size = Vector3(0.25, 2.3, 0.25)
+			vb.material = bridge_red
+			vert.mesh = vb
+			vert.position = Vector3(float(bx), 1.65, 42.0 + side)
+			bridge_node.add_child(vert)
 
 # -----------------------------------------------------------------
-# 8. PLEASURE PIER & BOARDWALK (Region L)
+# 9. WOODEN PLEASURE PIER & BOARDWALK
 # -----------------------------------------------------------------
 static func _build_pleasure_pier(parent: Node3D, wood_mat: Material) -> void:
 	var pier_node := Node3D.new()
 	pier_node.name = "PleasurePier"
 	parent.add_child(pier_node)
 
-	# Main Long Pier Deck extending South into water (X = 60.0, Z: 54 to 84)
+	# Main boardwalk extending south into water (X = 60.0, Z: 64 to 86)
 	var deck := MeshInstance3D.new()
 	var db := BoxMesh.new()
-	db.size = Vector3(5.5, 0.35, 30.0)
+	db.size = Vector3(6.5, 0.3, 24.0)
 	db.material = wood_mat
 	deck.mesh = db
-	deck.position = Vector3(60.0, 0.08, 69.0)
+	deck.position = Vector3(60.0, 0.08, 75.0)
 	pier_node.add_child(deck)
 
-	# Pierhead Amusement Platform at south end (Size: 14 x 14 at Z = 86.0)
+	# Pierhead octagonal platform (X = 60.0, Z = 86.0)
 	var platform := MeshInstance3D.new()
 	var pb := BoxMesh.new()
-	pb.size = Vector3(14.0, 0.4, 14.0)
+	pb.size = Vector3(14.0, 0.3, 14.0)
 	pb.material = wood_mat
 	platform.mesh = pb
 	platform.position = Vector3(60.0, 0.08, 86.0)
 	pier_node.add_child(platform)
 
-	# Wooden Pilings supporting the pier above water
-	var pile_mat := Constants.get_standard_material(Color(0.35, 0.28, 0.20), 0.8)
-	for z in range(60, 94, 6):
-		for x in [-2.5, 2.5]:
-			var pile := MeshInstance3D.new()
-			var cb := CylinderMesh.new()
-			cb.top_radius = 0.22
-			cb.bottom_radius = 0.22
-			cb.height = 1.2
-			cb.material = pile_mat
-			pile.mesh = cb
-			pile.position = Vector3(60.0 + x, -0.4, float(z))
-			pier_node.add_child(pile)
-
 # -----------------------------------------------------------------
-# 9. ROAD MARKINGS & ZEBRA CROSSINGS
+# 10. LANE MARKINGS & ZEBRA CROSSINGS
 # -----------------------------------------------------------------
-static func _build_lane_markings(parent: Node3D, white_mat: Material, yellow_mat: Material) -> void:
+static func _build_lane_markings(parent: Node3D, white_mat: Material) -> void:
 	var markings := Node3D.new()
 	markings.name = "RoadMarkings"
 	parent.add_child(markings)
 
-	# Zebra Crossings at downtown intersections
 	var zebra_locs: Array[Vector3] = [
 		Vector3(-18.0, 0.03, -40.0), Vector3(34.0, 0.03, -40.0),
 		Vector3(-18.0, 0.03, -24.0), Vector3(34.0, 0.03, -24.0),
@@ -394,7 +467,7 @@ static func _build_lane_markings(parent: Node3D, white_mat: Material, yellow_mat
 			markings.add_child(z_bar)
 
 # -----------------------------------------------------------------
-# HELPER STRIP SPAWNERS
+# HELPER STRIP SPAWNERS & SURFACE TOOL
 # -----------------------------------------------------------------
 static func _add_road_strip(parent: Node3D, mat: Material, pos: Vector3, size: Vector3) -> MeshInstance3D:
 	var mi := MeshInstance3D.new()
@@ -417,3 +490,14 @@ static func _add_sidewalk_strip(parent: Node3D, mat: Material, pos: Vector3, siz
 	mi.add_to_group("hole_cutout_meshes")
 	parent.add_child(mi)
 	return mi
+
+static func _add_flat_triangle(st: SurfaceTool, v0: Vector3, v1: Vector3, v2: Vector3) -> void:
+	var n: Vector3 = (v1 - v0).cross(v2 - v0).normalized()
+	st.set_normal(n)
+	st.add_vertex(v0)
+	st.add_vertex(v1)
+	st.add_vertex(v2)
+
+static func _add_flat_quad(st: SurfaceTool, v0: Vector3, v1: Vector3, v2: Vector3, v3: Vector3) -> void:
+	_add_flat_triangle(st, v0, v1, v2)
+	_add_flat_triangle(st, v0, v2, v3)

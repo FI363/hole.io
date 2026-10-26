@@ -161,7 +161,7 @@ static func _build_airplane() -> Node3D:
 # 3. MARINA YACHTS & BOATS
 # -----------------------------------------------------------------
 static func _populate_marina_boats(root: Node3D) -> void:
-	for z in range(64, 85, 4):
+	for z in range(65, 84, 7):
 		var boat1 := _build_yacht()
 		_spawn_procedural(root, boat1, Vector3(-9.5, -0.32, float(z)), PI * 0.5)
 
@@ -345,13 +345,12 @@ static func _populate_mountain_forest(root: Node3D) -> void:
 # -----------------------------------------------------------------
 static func _populate_suburban_props(root: Node3D) -> void:
 	var car_models: Array[PackedScene] = [MODEL_CAR_SEDAN, MODEL_CAR_SUV, MODEL_CAR_SPORTS, MODEL_CAR_TAXI]
-	var driveway_x: Array[float] = [-78.0, -70.0, -62.0, -54.0]
+	var street_z: Array[float] = [-32.0, -24.0, -16.0, -8.0, 0.0, 8.0, 16.0, 24.0]
 	var car_idx: int = 0
-	for x in driveway_x:
-		for z in [-28.0, -18.0]:
-			var car_m := car_models[car_idx % car_models.size()]
-			_spawn_model(root, car_m, Vector3(x + 2.5, 0.5, float(z)), 1.1, 0.0, 0.08)
-			car_idx += 1
+	for z in street_z:
+		var car_m := car_models[car_idx % car_models.size()]
+		_spawn_model(root, car_m, Vector3(-82.0, 0.45, z), 1.1, 0.0, 0.08)
+		car_idx += 1
 
 # -----------------------------------------------------------------
 # 9. DOWNTOWN PROMENADE & STREET TRAFFIC (Imported Cars & Benches)

@@ -1,8 +1,8 @@
 class_name RefTerrainBuilder
 extends RefCounted
 
-## Builds the continuous low-poly terrain, water bodies, mountains, coastline, and sports field
-## Faithfully matches the reference image geography
+## Builds low-poly faceted terrain, mountains with tunnel, cliffs, ocean, lake, and athletic stadium
+## Faithfully matches the reference images with organic, non-square low-poly geometry
 
 const Constants = preload("res://scripts/city/reference_map/map_constants.gd")
 
@@ -12,7 +12,8 @@ static func build_terrain(parent_node: Node3D, player_hole: PlayerHole) -> void:
 	parent_node.add_child(terrain_root)
 
 	var grass_mat := Constants.get_cutout_material(Constants.COLOR_GRASS, 0.88)
-	var rock_mat := Constants.get_cutout_material(Constants.COLOR_MOUNTAIN_ROCK, 0.90)
+	var forest_mat := Constants.get_cutout_material(Constants.COLOR_FOREST_GRASS, 0.90)
+	var rock_mat := Constants.get_cutout_material(Constants.COLOR_MOUNTAIN_ROCK, 0.85)
 	var sand_mat := Constants.get_cutout_material(Constants.COLOR_SAND, 0.92)
 	var water_deep := Constants.get_cutout_material(Constants.COLOR_WATER_DEEP, 0.20)
 	var water_shallow := Constants.get_cutout_material(Constants.COLOR_WATER_SHALLOW, 0.20)
@@ -21,6 +22,7 @@ static func build_terrain(parent_node: Node3D, player_hole: PlayerHole) -> void:
 
 	if player_hole:
 		player_hole.register_shader_material(grass_mat)
+		player_hole.register_shader_material(forest_mat)
 		player_hole.register_shader_material(rock_mat)
 		player_hole.register_shader_material(sand_mat)
 		player_hole.register_shader_material(water_deep)
@@ -28,32 +30,34 @@ static func build_terrain(parent_node: Node3D, player_hole: PlayerHole) -> void:
 		player_hole.register_shader_material(track_mat)
 		player_hole.register_shader_material(soccer_mat)
 
-	# 1. Base Mainland Ground Plane (Y = 0.0, covering full urban landmass)
+	# 1. Base Mainland Ground Plane (Urban surface at Y = 0.0)
 	_build_mainland_base(terrain_root, grass_mat)
 
-	# 2. Ocean Water & Coastline (East & South)
-	_build_ocean_and_waterfront(terrain_root, water_deep, water_shallow)
+	# 2. Ocean Water & Coastal Drop-offs (East & South)
+	_build_ocean_and_waterfront(terrain_root, water_deep, water_shallow, rock_mat)
 
 	# 3. Southeastern Sandy Beach (Region L)
 	_build_sandy_beach(terrain_root, sand_mat)
 
-	# 4. Northern Mountain & Forested Hills with Tunnel (Region A)
-	_build_mountain_hills(terrain_root, rock_mat, grass_mat)
+	# 4. Northern Faceted Mountain with Cliffs and Tunnel (Region A - matching Image 4)
+	_build_faceted_mountain(terrain_root, rock_mat, forest_mat)
 
-	# 5. Sports Stadium & Soccer Field (Region I)
+	# 5. Sports Stadium & Soccer Field (Region I - matching Image 1)
 	_build_sports_stadium(terrain_root, track_mat, soccer_mat)
 
-	# 6. Central Park Lake & Bridges (Region H)
+	# 6. Central Park Organic Lake & Footbridges (Region H - matching Image 3)
 	_build_park_lake(terrain_root, water_shallow, grass_mat)
 
-	# 7. Marina Basin & Breakwater Jetty (Region M)
+	# 7. Marina Basin & Breakwater Jetty (Region M - matching Image 2)
 	_build_marina_basin(terrain_root, water_shallow, rock_mat)
 
-	# 8. Offshore Lighthouse Islet & Footbridge (Region C)
+	# 8. Offshore Lighthouse Islet & Footbridge (Region C - matching Image 2)
 	_build_lighthouse_islet(terrain_root, rock_mat)
 
+# -----------------------------------------------------------------
+# 1. MAINLAND BASE
+# -----------------------------------------------------------------
 static func _build_mainland_base(parent: Node3D, mat: Material) -> void:
-	# Main Urban Ground Surface at Y = 0.0 (slightly elevated above water at Y = -0.6)
 	var mi := MeshInstance3D.new()
 	mi.name = "MainlandGround"
 	var b := BoxMesh.new()
@@ -64,12 +68,15 @@ static func _build_mainland_base(parent: Node3D, mat: Material) -> void:
 	mi.add_to_group("hole_cutout_meshes")
 	parent.add_child(mi)
 
-static func _build_ocean_and_waterfront(parent: Node3D, deep_mat: Material, shallow_mat: Material) -> void:
+# -----------------------------------------------------------------
+# 2. OCEAN WATER & COASTAL CLIFFS
+# -----------------------------------------------------------------
+static func _build_ocean_and_waterfront(parent: Node3D, deep_mat: Material, shallow_mat: Material, rock_mat: Material) -> void:
 	var water_container := Node3D.new()
 	water_container.name = "OceanWater"
 	parent.add_child(water_container)
 
-	# Eastern Ocean Water (X: 62 to 100, Z: -42 to 100)
+	# Eastern Deep Ocean Water (X: 62 to 100, Z: -42 to 100)
 	var ocean_east := MeshInstance3D.new()
 	var eb := BoxMesh.new()
 	eb.size = Vector3(40.0, 0.02, 144.0)
@@ -109,103 +116,185 @@ static func _build_ocean_and_waterfront(parent: Node3D, deep_mat: Material, shal
 	shallow_mesh.add_to_group("hole_cutout_meshes")
 	water_container.add_child(shallow_mesh)
 
+	# Faceted coastal rock cliffs dropping into the water along eastern coastline
+	var cliffs := StaticBody3D.new()
+	cliffs.name = "CoastalRockCliffs"
+	parent.add_child(cliffs)
+
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	st.set_material(rock_mat)
+
+	var cliff_pts: Array[Vector3] = [
+		Vector3(62.0, 0.0, -40.0), Vector3(64.0, -0.6, -40.0),
+		Vector3(63.0, 0.0, -10.0), Vector3(66.0, -0.6, -10.0),
+		Vector3(61.0, 0.0, 20.0), Vector3(65.0, -0.6, 20.0),
+		Vector3(60.0, 0.0, 50.0), Vector3(63.0, -0.6, 50.0)
+	]
+	for i in range(0, cliff_pts.size() - 2, 2):
+		_add_flat_quad(st, cliff_pts[i], cliff_pts[i + 1], cliff_pts[i + 3], cliff_pts[i + 2])
+
+	var c_mesh := st.commit()
+	var c_mi := MeshInstance3D.new()
+	c_mi.mesh = c_mesh
+	c_mi.add_to_group("hole_cutout_meshes")
+	cliffs.add_child(c_mi)
+
+# -----------------------------------------------------------------
+# 3. SANDY BEACH
+# -----------------------------------------------------------------
 static func _build_sandy_beach(parent: Node3D, sand_mat: Material) -> void:
-	# Crescent-shaped sandy beach curving along Region L (X: 36 to 82, Z: 54 to 86)
 	var beach_container := Node3D.new()
 	beach_container.name = "SandyBeach"
 	parent.add_child(beach_container)
 
-	var beach_segments: Array[Dictionary] = [
-		{"pos": Vector3(48.0, 0.025, 62.0), "size": Vector3(18.0, 0.03, 14.0)},
-		{"pos": Vector3(62.0, 0.025, 66.0), "size": Vector3(22.0, 0.03, 18.0)},
-		{"pos": Vector3(72.0, 0.025, 74.0), "size": Vector3(18.0, 0.03, 16.0)},
-		{"pos": Vector3(56.0, 0.025, 76.0), "size": Vector3(16.0, 0.03, 12.0)}
+	# Smooth crescent-shaped sandy beach curving along Region L (X: 38 to 78, Z: 56 to 82)
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	st.set_material(sand_mat)
+
+	var beach_poly: Array[Vector3] = [
+		Vector3(42.0, 0.025, 56.0), Vector3(56.0, 0.025, 54.0),
+		Vector3(70.0, 0.025, 58.0), Vector3(76.0, 0.025, 70.0),
+		Vector3(68.0, 0.025, 82.0), Vector3(52.0, 0.025, 80.0),
+		Vector3(40.0, 0.025, 72.0)
 	]
+	var center := Vector3(58.0, 0.025, 68.0)
+	for i in range(beach_poly.size()):
+		var p1 := beach_poly[i]
+		var p2 := beach_poly[(i + 1) % beach_poly.size()]
+		_add_flat_triangle(st, center, p1, p2)
 
-	for s in beach_segments:
-		var mi := MeshInstance3D.new()
-		var b := BoxMesh.new()
-		b.size = s["size"]
-		b.material = sand_mat
-		mi.mesh = b
-		mi.position = s["pos"]
-		mi.add_to_group("hole_cutout_meshes")
-		beach_container.add_child(mi)
+	var b_mesh := st.commit()
+	var b_mi := MeshInstance3D.new()
+	b_mi.mesh = b_mesh
+	b_mi.add_to_group("hole_cutout_meshes")
+	beach_container.add_child(b_mi)
 
-static func _build_mountain_hills(parent: Node3D, rock_mat: Material, grass_mat: Material) -> void:
-	# Northern Forested Hills / Mountain Ridge (Region A: X in [-98, -40], Z in [-98, -40])
+# -----------------------------------------------------------------
+# 4. NORTHERN FACETED MOUNTAIN & TUNNEL (Matching Image 4)
+# -----------------------------------------------------------------
+static func _build_faceted_mountain(parent: Node3D, rock_mat: Material, grass_mat: Material) -> void:
 	var mtn := StaticBody3D.new()
-	mtn.name = "MountainHills"
+	mtn.name = "FacetedMountain"
 	parent.add_child(mtn)
 
-	# Stepped low-poly rocky cliff tiers
-	var tiers: Array[Dictionary] = [
-		# Base Plateau (Y = 2.5)
-		{"pos": Vector3(-72.0, 1.25, -72.0), "size": Vector3(48.0, 2.5, 48.0)},
-		# Mid Rocky Ridge (Y = 5.5)
-		{"pos": Vector3(-76.0, 3.25, -76.0), "size": Vector3(38.0, 4.0, 38.0)},
-		# Upper Crags (Y = 8.5)
-		{"pos": Vector3(-80.0, 5.5, -80.0), "size": Vector3(28.0, 5.0, 28.0)},
-		# Mountain Peak (Y = 12.0)
-		{"pos": Vector3(-82.0, 8.0, -82.0), "size": Vector3(18.0, 6.0, 18.0)},
-		# Eastern Ridge Spur
-		{"pos": Vector3(-52.0, 1.8, -80.0), "size": Vector3(22.0, 3.6, 26.0)},
-		# Southern Foothills near Tunnel
-		{"pos": Vector3(-84.0, 1.8, -50.0), "size": Vector3(24.0, 3.6, 20.0)}
+	# 1. Main Faceted Rock Cliffs using SurfaceTool
+	var st_rock := SurfaceTool.new()
+	st_rock.begin(Mesh.PRIMITIVE_TRIANGLES)
+	st_rock.set_material(rock_mat)
+
+	# Mountain base perimeter (Elevation Y = 0 to 4)
+	var base_ring: Array[Vector3] = [
+		Vector3(-96.0, 0.0, -96.0), Vector3(-60.0, 0.0, -96.0),
+		Vector3(-45.0, 0.0, -82.0), Vector3(-42.0, 0.0, -60.0),
+		Vector3(-55.0, 0.0, -42.0), Vector3(-75.0, 0.0, -42.0),
+		Vector3(-96.0, 0.0, -55.0)
+	]
+	# Mid ridge ring (Elevation Y = 5 to 8)
+	var mid_ring: Array[Vector3] = [
+		Vector3(-90.0, 6.0, -90.0), Vector3(-68.0, 6.0, -90.0),
+		Vector3(-52.0, 5.5, -78.0), Vector3(-50.0, 5.0, -62.0),
+		Vector3(-62.0, 5.0, -50.0), Vector3(-78.0, 5.5, -48.0),
+		Vector3(-90.0, 6.0, -60.0)
+	]
+	# Upper summit ring (Elevation Y = 11 to 14)
+	var upper_ring: Array[Vector3] = [
+		Vector3(-85.0, 13.0, -86.0), Vector3(-70.0, 13.0, -86.0),
+		Vector3(-64.0, 13.0, -78.0), Vector3(-66.0, 13.0, -68.0),
+		Vector3(-76.0, 13.0, -65.0), Vector3(-85.0, 13.0, -75.0)
 	]
 
-	for t in tiers:
-		var mi := MeshInstance3D.new()
-		var b := BoxMesh.new()
-		b.size = t["size"]
-		b.material = rock_mat
-		mi.mesh = b
-		mi.position = t["pos"]
-		mi.add_to_group("hole_cutout_meshes")
-		mtn.add_child(mi)
+	# Build faceted cliff faces between base and mid ring
+	for i in range(base_ring.size()):
+		var b0 := base_ring[i]
+		var b1 := base_ring[(i + 1) % base_ring.size()]
+		var m0 := mid_ring[i % mid_ring.size()]
+		var m1 := mid_ring[(i + 1) % mid_ring.size()]
+		_add_flat_quad(st_rock, b0, b1, m1, m0)
 
-		# Add Collision for mountain slopes
-		var col := CollisionShape3D.new()
-		var cs := BoxShape3D.new()
-		cs.size = t["size"]
-		col.shape = cs
-		col.position = t["pos"]
-		mtn.add_child(col)
+	# Build faceted cliff faces between mid and upper ring
+	for i in range(mid_ring.size()):
+		var m0 := mid_ring[i]
+		var m1 := mid_ring[(i + 1) % mid_ring.size()]
+		var u0 := upper_ring[i % upper_ring.size()]
+		var u1 := upper_ring[(i + 1) % upper_ring.size()]
+		_add_flat_quad(st_rock, m0, m1, u1, u0)
 
-		# Green grassy cap on top of plateau
-		var cap := MeshInstance3D.new()
-		var cb := BoxMesh.new()
-		cb.size = Vector3(t["size"].x * 0.92, 0.15, t["size"].z * 0.92)
-		cb.material = grass_mat
-		cap.mesh = cb
-		cap.position = Vector3(t["pos"].x, t["pos"].y + t["size"].y * 0.5 + 0.08, t["pos"].z)
-		cap.add_to_group("hole_cutout_meshes")
-		mtn.add_child(cap)
+	var rock_mesh := st_rock.commit()
+	var rock_mi := MeshInstance3D.new()
+	rock_mi.mesh = rock_mesh
+	rock_mi.add_to_group("hole_cutout_meshes")
+	mtn.add_child(rock_mi)
 
-	# Tunnel Entrance Portal at base of mountain (X = -76.0, Z = -42.0)
-	var portal_frame := MeshInstance3D.new()
-	var pfb := BoxMesh.new()
-	pfb.size = Vector3(10.0, 4.5, 3.0)
-	pfb.material = rock_mat
-	portal_frame.mesh = pfb
-	portal_frame.position = Vector3(-76.0, 2.25, -42.0)
-	mtn.add_child(portal_frame)
+	# 2. Green Summit Plateau (Elevation Y = 13.0)
+	var st_grass := SurfaceTool.new()
+	st_grass.begin(Mesh.PRIMITIVE_TRIANGLES)
+	st_grass.set_material(grass_mat)
+	var summit_center := Vector3(-74.0, 13.0, -76.0)
+	for i in range(upper_ring.size()):
+		var u0 := upper_ring[i]
+		var u1 := upper_ring[(i + 1) % upper_ring.size()]
+		_add_flat_triangle(st_grass, summit_center, u0, u1)
 
-	var tunnel_blackout := MeshInstance3D.new()
-	var tbb := BoxMesh.new()
-	tbb.size = Vector3(6.5, 3.5, 0.2)
-	tbb.material = Constants.get_standard_material(Color(0.04, 0.04, 0.05), 0.9)
-	tunnel_blackout.mesh = tbb
-	tunnel_blackout.position = Vector3(-76.0, 1.75, -40.4)
-	mtn.add_child(tunnel_blackout)
+	var grass_mesh := st_grass.commit()
+	var grass_mi := MeshInstance3D.new()
+	grass_mi.mesh = grass_mesh
+	grass_mi.add_to_group("hole_cutout_meshes")
+	mtn.add_child(grass_mi)
 
+	# 3. Tunnel Portal Arch at Base (X = -72.0, Z = -45.0)
+	var tunnel_arch := StaticBody3D.new()
+	tunnel_arch.name = "MountainTunnelPortal"
+	tunnel_arch.position = Vector3(-72.0, 0.0, -44.0)
+	parent.add_child(tunnel_arch)
+
+	var portal_mat := Constants.get_standard_material(Color(0.35, 0.36, 0.38), 0.7)
+	# Left and right concrete portal pillars
+	for px in [-4.5, 4.5]:
+		var pillar := MeshInstance3D.new()
+		var pb := BoxMesh.new()
+		pb.size = Vector3(1.4, 6.0, 3.5)
+		pb.material = portal_mat
+		pillar.mesh = pb
+		pillar.position = Vector3(px, 3.0, 0.0)
+		tunnel_arch.add_child(pillar)
+
+	# Top arch lintel
+	var lintel := MeshInstance3D.new()
+	var lb := BoxMesh.new()
+	lb.size = Vector3(10.4, 1.8, 3.5)
+	lb.material = portal_mat
+	lintel.mesh = lb
+	lintel.position = Vector3(0.0, 6.9, 0.0)
+	tunnel_arch.add_child(lintel)
+
+	# Dark tunnel interior
+	var interior := MeshInstance3D.new()
+	var ib := BoxMesh.new()
+	ib.size = Vector3(7.6, 5.8, 0.4)
+	ib.material = Constants.get_standard_material(Color(0.05, 0.05, 0.06), 0.9)
+	interior.mesh = ib
+	interior.position = Vector3(0.0, 3.0, -1.6)
+	tunnel_arch.add_child(interior)
+
+	# Mountain collision hull
+	var col := CollisionShape3D.new()
+	var cs := BoxShape3D.new()
+	cs.size = Vector3(46.0, 14.0, 46.0)
+	col.shape = cs
+	col.position = Vector3(-72.0, 7.0, -72.0)
+	mtn.add_child(col)
+
+# -----------------------------------------------------------------
+# 5. SPORTS STADIUM (Matching Image 1)
+# -----------------------------------------------------------------
 static func _build_sports_stadium(parent: Node3D, track_mat: Material, soccer_mat: Material) -> void:
-	# Athletic running track & soccer pitch in Region I (Center: X = -52.0, Z = 18.0)
 	var stadium := Node3D.new()
 	stadium.name = "SportsStadium"
 	parent.add_child(stadium)
 
-	# 1. Oval Running Track (Red asphalt, size 18 x 28)
+	# 1. Oval Running Track (Red, size 18 x 28 at X = -52.0, Z = 18.0)
 	var track := MeshInstance3D.new()
 	var tb := BoxMesh.new()
 	tb.size = Vector3(18.0, 0.04, 28.0)
@@ -225,7 +314,7 @@ static func _build_sports_stadium(parent: Node3D, track_mat: Material, soccer_ma
 	pitch.add_to_group("hole_cutout_meshes")
 	stadium.add_child(pitch)
 
-	# 3. White Pitch Markings (Perimeter + Center Line + Center Circle)
+	# 3. White Pitch Lines
 	var white_mat := Constants.get_standard_material(Color(0.96, 0.96, 0.96), 0.4)
 	var center_line := MeshInstance3D.new()
 	var clb := BoxMesh.new()
@@ -245,7 +334,7 @@ static func _build_sports_stadium(parent: Node3D, track_mat: Material, soccer_ma
 	center_circle.position = Vector3(-52.0, 0.04, 18.0)
 	stadium.add_child(center_circle)
 
-	# 4. Stadium Bleachers (West side: X = -62.5, Z = 18.0)
+	# 4. Bleachers (West side: X = -62.5, Z = 18.0)
 	var bleachers := MeshInstance3D.new()
 	var bb := BoxMesh.new()
 	bb.size = Vector3(2.5, 2.2, 22.0)
@@ -263,48 +352,77 @@ static func _build_sports_stadium(parent: Node3D, track_mat: Material, soccer_ma
 	canopy.position = Vector3(-62.0, 2.8, 18.0)
 	stadium.add_child(canopy)
 
+# -----------------------------------------------------------------
+# 6. CENTRAL PARK LAKE & FOUNTAIN PLAZA (Matching Image 3)
+# -----------------------------------------------------------------
 static func _build_park_lake(parent: Node3D, water_mat: Material, grass_mat: Material) -> void:
-	# Central Park organic lake in Region H (Center: X = -25.0, Z = -22.0)
 	var lake_node := Node3D.new()
 	lake_node.name = "CentralParkLake"
 	parent.add_child(lake_node)
 
-	# Water surface (slightly elevated at Y = 0.015)
-	var lake_water := MeshInstance3D.new()
-	var wb := BoxMesh.new()
-	wb.size = Vector3(15.0, 0.02, 19.0)
-	wb.material = water_mat
-	lake_water.mesh = wb
-	lake_water.position = Vector3(-25.0, 0.015, -22.0)
-	lake_water.add_to_group("hole_cutout_meshes")
-	lake_node.add_child(lake_water)
+	# Organic Kidney-shaped lake using SurfaceTool (Center: X = -12.0, Z = -16.0)
+	var st_lake := SurfaceTool.new()
+	st_lake.begin(Mesh.PRIMITIVE_TRIANGLES)
+	st_lake.set_material(water_mat)
 
-	# White arched footbridge crossing the lake center
-	var bridge := MeshInstance3D.new()
-	var bb := BoxMesh.new()
-	bb.size = Vector3(3.2, 0.35, 17.0)
-	bb.material = Constants.get_standard_material(Color(0.94, 0.94, 0.94), 0.3)
-	bridge.mesh = bb
-	bridge.position = Vector3(-25.0, 0.25, -22.0)
-	lake_node.add_child(bridge)
+	var lake_perimeter: Array[Vector3] = [
+		Vector3(-12.0, 0.015, -28.0), Vector3(-6.0, 0.015, -25.0),
+		Vector3(-4.0, 0.015, -18.0), Vector3(-7.0, 0.015, -12.0),
+		Vector3(-6.0, 0.015, -6.0), Vector3(-10.0, 0.015, -3.0),
+		Vector3(-16.0, 0.015, -4.0), Vector3(-18.0, 0.015, -10.0),
+		Vector3(-16.0, 0.015, -18.0), Vector3(-18.0, 0.015, -25.0)
+	]
+	var lake_center := Vector3(-11.0, 0.015, -16.0)
+	for i in range(lake_perimeter.size()):
+		var p1 := lake_perimeter[i]
+		var p2 := lake_perimeter[(i + 1) % lake_perimeter.size()]
+		_add_flat_triangle(st_lake, lake_center, p1, p2)
 
-	# Bridge railings
-	for side in [-1.5, 1.5]:
-		var rail := MeshInstance3D.new()
-		var rb := BoxMesh.new()
-		rb.size = Vector3(0.12, 0.65, 17.0)
-		rb.material = Constants.get_standard_material(Color(0.85, 0.85, 0.88), 0.3)
-		rail.mesh = rb
-		rail.position = Vector3(-25.0 + side, 0.65, -22.0)
-		lake_node.add_child(rail)
+	var l_mesh := st_lake.commit()
+	var l_mi := MeshInstance3D.new()
+	l_mi.mesh = l_mesh
+	l_mi.add_to_group("hole_cutout_meshes")
+	lake_node.add_child(l_mi)
 
+	# 3 Wooden Footbridges / Boardwalks extending into lake (matching Image 3)
+	var wood_mat := Constants.get_standard_material(Constants.COLOR_PIER_WOOD, 0.7)
+	var bridges: Array[Dictionary] = [
+		{"pos": Vector3(-15.0, 0.12, -22.0), "size": Vector3(1.8, 0.15, 6.0), "rot": 0.4},
+		{"pos": Vector3(-6.0, 0.12, -15.0), "size": Vector3(1.8, 0.15, 5.5), "rot": -0.6},
+		{"pos": Vector3(-14.0, 0.12, -8.0), "size": Vector3(1.8, 0.15, 5.0), "rot": 0.8}
+	]
+	for br in bridges:
+		var bm := MeshInstance3D.new()
+		var b := BoxMesh.new()
+		b.size = br["size"]
+		b.material = wood_mat
+		bm.mesh = b
+		bm.position = br["pos"]
+		bm.rotation.y = br["rot"]
+		lake_node.add_child(bm)
+
+	# Circular Plaza Base for the Fountain (Southwest corner of park: X = -18.0, Z = 4.0)
+	var plaza := MeshInstance3D.new()
+	var p_cyl := CylinderMesh.new()
+	p_cyl.top_radius = 5.5
+	p_cyl.bottom_radius = 5.5
+	p_cyl.height = 0.04
+	p_cyl.radial_segments = 32
+	p_cyl.material = Constants.get_cutout_material(Constants.COLOR_SIDEWALK, 0.7)
+	plaza.mesh = p_cyl
+	plaza.position = Vector3(-18.0, 0.02, 4.0)
+	plaza.add_to_group("hole_cutout_meshes")
+	lake_node.add_child(plaza)
+
+# -----------------------------------------------------------------
+# 7. MARINA BASIN (Matching Image 2)
+# -----------------------------------------------------------------
 static func _build_marina_basin(parent: Node3D, water_mat: Material, rock_mat: Material) -> void:
-	# Marina basin in Region M (X = -2.0, Z = 74.0)
 	var marina := Node3D.new()
 	marina.name = "MarinaBasin"
 	parent.add_child(marina)
 
-	# Marina sheltered water surface (Y = 0.015)
+	# Marina water surface (Y = 0.015)
 	var water := MeshInstance3D.new()
 	var wb := BoxMesh.new()
 	wb.size = Vector3(28.0, 0.02, 34.0)
@@ -314,13 +432,13 @@ static func _build_marina_basin(parent: Node3D, water_mat: Material, rock_mat: M
 	water.add_to_group("hole_cutout_meshes")
 	marina.add_child(water)
 
-	# Curved stone breakwater jetty protecting harbor (X: -18.0 to 9.0, Z = 91.0)
+	# Curved stone breakwater jetty (X: -18.0 to 9.0, Z = 91.0)
 	var jetty := MeshInstance3D.new()
 	var jb := BoxMesh.new()
 	jb.size = Vector3(28.0, 0.8, 3.2)
 	jb.material = rock_mat
 	jetty.mesh = jb
-	jetty.position = Vector3(-3.0, -0.15, 91.0)
+	jetty.position = Vector3(-3.0, 0.25, 91.0)
 	marina.add_child(jetty)
 
 	# Western pier arm
@@ -329,61 +447,64 @@ static func _build_marina_basin(parent: Node3D, water_mat: Material, rock_mat: M
 	ab.size = Vector3(3.2, 0.8, 22.0)
 	ab.material = rock_mat
 	arm_west.mesh = ab
-	arm_west.position = Vector3(-17.0, -0.15, 80.0)
+	arm_west.position = Vector3(-17.0, 0.25, 80.0)
 	marina.add_child(arm_west)
 
-	# Floating finger docks (Wood planks for boats)
+	# Floating finger docks
 	var dock_mat := Constants.get_standard_material(Constants.COLOR_PIER_WOOD, 0.7)
-	# Main central dock spine
 	var spine := MeshInstance3D.new()
 	var spb := BoxMesh.new()
-	spb.size = Vector3(1.8, 0.25, 24.0)
+	spb.size = Vector3(1.8, 0.20, 24.0)
 	spb.material = dock_mat
 	spine.mesh = spb
-	spine.position = Vector3(-4.0, -0.42, 74.0)
+	spine.position = Vector3(-4.0, 0.10, 74.0)
 	marina.add_child(spine)
 
-	# Finger berths
 	for z in range(64, 86, 4):
 		var finger1 := MeshInstance3D.new()
 		var fb := BoxMesh.new()
-		fb.size = Vector3(6.0, 0.20, 0.8)
+		fb.size = Vector3(6.0, 0.15, 0.8)
 		fb.material = dock_mat
 		finger1.mesh = fb
-		finger1.position = Vector3(-7.5, -0.42, float(z))
+		finger1.position = Vector3(-7.5, 0.10, float(z))
 		marina.add_child(finger1)
 
 		var finger2 := MeshInstance3D.new()
 		finger2.mesh = fb
-		finger2.position = Vector3(-0.5, -0.42, float(z))
+		finger2.position = Vector3(-0.5, 0.10, float(z))
 		marina.add_child(finger2)
 
+# -----------------------------------------------------------------
+# 8. OFFSHORE LIGHTHOUSE ISLET (Matching Image 2)
+# -----------------------------------------------------------------
 static func _build_lighthouse_islet(parent: Node3D, rock_mat: Material) -> void:
-	# Offshore rocky islet in Region C (X = 90.0, Z = -16.0)
 	var islet := StaticBody3D.new()
 	islet.name = "LighthouseIslet"
 	parent.add_child(islet)
 
-	# Rocky island crag rising out of water
-	var rock := MeshInstance3D.new()
-	var rb := CylinderMesh.new()
-	rb.top_radius = 5.5
-	rb.bottom_radius = 7.5
-	rb.height = 3.5
-	rb.material = rock_mat
-	rock.mesh = rb
-	rock.position = Vector3(90.0, 0.6, -16.0)
-	islet.add_child(rock)
+	# Rocky island crag in the water
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	st.set_material(rock_mat)
 
-	var col := CollisionShape3D.new()
-	var cs := CylinderShape3D.new()
-	cs.radius = 6.0
-	cs.height = 3.5
-	col.shape = cs
-	col.position = Vector3(90.0, 0.6, -16.0)
-	islet.add_child(col)
+	var ring: Array[Vector3] = [
+		Vector3(84.0, 0.0, -22.0), Vector3(94.0, 0.0, -24.0),
+		Vector3(98.0, 0.0, -16.0), Vector3(95.0, 0.0, -8.0),
+		Vector3(86.0, 0.0, -10.0)
+	]
+	var top := Vector3(90.0, 3.2, -16.0)
+	for i in range(ring.size()):
+		var r0 := ring[i]
+		var r1 := ring[(i + 1) % ring.size()]
+		_add_flat_triangle(st, top, r0, r1)
 
-	# Lighthouse Tower (White & Red striped cylinder, height 12.0)
+	var i_mesh := st.commit()
+	var i_mi := MeshInstance3D.new()
+	i_mi.mesh = i_mesh
+	i_mi.add_to_group("hole_cutout_meshes")
+	islet.add_child(i_mi)
+
+	# Lighthouse Tower (White tapered column)
 	var lh_base := MeshInstance3D.new()
 	var lb := CylinderMesh.new()
 	lb.top_radius = 1.3
@@ -406,13 +527,13 @@ static func _build_lighthouse_islet(parent: Node3D, rock_mat: Material) -> void:
 		stripe.position = Vector3(90.0, float(y), -16.0)
 		islet.add_child(stripe)
 
-	# Lantern Cab & Roof Cupola
+	# Lantern Cab & Dome
 	var cab := MeshInstance3D.new()
 	var cb := CylinderMesh.new()
 	cb.top_radius = 1.4
 	cb.bottom_radius = 1.4
 	cb.height = 1.8
-	cb.material = Constants.get_standard_material(Color(0.95, 0.95, 0.5), 0.1) # Bright yellow light
+	cb.material = Constants.get_standard_material(Color(0.95, 0.95, 0.5), 0.1)
 	cab.mesh = cb
 	cab.position = Vector3(90.0, 13.0, -16.0)
 	islet.add_child(cab)
@@ -427,7 +548,7 @@ static func _build_lighthouse_islet(parent: Node3D, rock_mat: Material) -> void:
 	dome.position = Vector3(90.0, 14.5, -16.0)
 	islet.add_child(dome)
 
-	# Wooden footbridge connecting from mainland cliff (X = 77.0, Z = -16.0) to island (X = 85.0, Z = -16.0)
+	# Footbridge from mainland to islet
 	var footbridge := MeshInstance3D.new()
 	var fbb := BoxMesh.new()
 	fbb.size = Vector3(10.0, 0.3, 2.2)
@@ -435,3 +556,17 @@ static func _build_lighthouse_islet(parent: Node3D, rock_mat: Material) -> void:
 	footbridge.mesh = fbb
 	footbridge.position = Vector3(81.0, 0.8, -16.0)
 	islet.add_child(footbridge)
+
+# -----------------------------------------------------------------
+# SURFACE TOOL HELPERS
+# -----------------------------------------------------------------
+static func _add_flat_triangle(st: SurfaceTool, v0: Vector3, v1: Vector3, v2: Vector3) -> void:
+	var n: Vector3 = (v1 - v0).cross(v2 - v0).normalized()
+	st.set_normal(n)
+	st.add_vertex(v0)
+	st.add_vertex(v1)
+	st.add_vertex(v2)
+
+static func _add_flat_quad(st: SurfaceTool, v0: Vector3, v1: Vector3, v2: Vector3, v3: Vector3) -> void:
+	_add_flat_triangle(st, v0, v1, v2)
+	_add_flat_triangle(st, v0, v2, v3)

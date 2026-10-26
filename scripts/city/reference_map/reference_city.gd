@@ -33,10 +33,10 @@ static func build_reference_city(arena_node: Node3D, collectibles_container: Nod
 	# 3. Build Road Network, Roundabouts, Runway, Bridges, and Sidewalks
 	RoadBuilder.build_roads(arena_node, player_hole)
 
-	# 4. Build Skyscrapers, Suburban Houses, Seaport, Airport, and Landmarks
-	BuildingBuilder.build_all_buildings(arena_node)
-
-	# 5. Populate Airplanes, Yachts, Containers, Trees, Vehicles, and Anchor Props
+	# 4. Populate Airplanes, Yachts, Containers, Trees, Vehicles, and Anchor Props (FIRST for anchor indices 0..8)
 	PropBuilder.populate_all_props(collectibles_container, player_hole)
+
+	# 5. Build Skyscrapers, Suburban Houses, Seaport, Airport, and Landmarks (All unattached physics collectibles)
+	BuildingBuilder.build_all_buildings(collectibles_container, arena_node)
 
 	print("[ReferenceCity] Recreated full low-poly reference city map with %d collectibles!" % collectibles_container.get_child_count())
