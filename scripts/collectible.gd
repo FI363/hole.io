@@ -30,7 +30,7 @@ func _ready() -> void:
 	add_to_group("collectibles")
 
 	# Genuine tabletop rigid-body physics settings with snappy arcade gravity
-	linear_damp = 0.1
+	linear_damp = 0.5
 	angular_damp = 1.0
 	gravity_scale = 2.2
 	can_sleep = true

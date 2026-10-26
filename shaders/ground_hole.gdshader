@@ -4,6 +4,7 @@ render_mode cull_back;
 uniform vec3 hole_pos = vec3(0.0);
 uniform float hole_radius = 1.25;
 uniform vec3 ground_color : source_color = vec3(0.32, 0.68, 0.38);
+uniform float roughness : hint_range(0.0, 1.0) = 0.8;
 
 varying vec3 world_pos;
 
@@ -17,5 +18,5 @@ void fragment() {
 		discard;
 	}
 	ALBEDO = ground_color;
-	ROUGHNESS = 0.85;
+	ROUGHNESS = roughness;
 }

@@ -18,6 +18,7 @@ signal hole_grown(new_radius: float)
 @export var growth_speed: float = 2.5
 
 @export var hole_cutout_path: NodePath = NodePath("../Arena/Ground/HoleCutout")
+@export var hole_shader_materials: Array[ShaderMaterial] = []
 
 var swallowed_count: int = 0
 var current_velocity: Vector3 = Vector3.ZERO
@@ -25,6 +26,10 @@ var target_radius: float = 1.25
 
 var _hole_cutout: CSGCylinder3D = null
 var _submerging_collectibles: Array[Collectible] = []
+
+var _last_synced_pos: Vector3 = Vector3.INF
+var _last_synced_radius: float = -1.0
+var _last_synced_visual_radius: float = -1.0
 
 @onready var visuals: Node3D = $Visuals
 @onready var wake_area: Area3D = $WakeArea
@@ -35,7 +40,9 @@ func _ready() -> void:
 	target_radius = hole_radius
 
 	_find_hole_cutout()
-	_sync_hole_geometry()
+	_find_shader_materials()
+	_sync_visuals_and_areas(true)
+	_sync_hole_geometry(true)
 
 	if swallow_area:
 		swallow_area.body_entered.connect(_on_swallow_area_body_entered)
@@ -46,6 +53,18 @@ func _find_hole_cutout() -> void:
 		_hole_cutout = get_node_or_null(hole_cutout_path) as CSGCylinder3D
 	if not _hole_cutout:
 		_hole_cutout = get_tree().root.find_child("HoleCutout", true, false) as CSGCylinder3D
+
+func _find_shader_materials() -> void:
+	# Automatically discover any MeshInstance3D in the scene using ground_hole shader
+	var meshes := get_tree().get_nodes_in_group("hole_cutout_meshes")
+	for m in meshes:
+		var mi := m as MeshInstance3D
+		if mi:
+			var mat: Material = mi.material_override
+			if not mat and mi.mesh:
+				mat = mi.mesh.material
+			if mat is ShaderMaterial and not hole_shader_materials.has(mat):
+				hole_shader_materials.append(mat as ShaderMaterial)
 
 func _physics_process(delta: float) -> void:
 	# 1. Process movement
@@ -66,7 +85,7 @@ func _physics_process(delta: float) -> void:
 		hole_radius = move_toward(hole_radius, target_radius, growth_speed * delta)
 		hole_grown.emit(hole_radius)
 
-	# 3. Synchronize visuals, areas, and CSG physical aperture every frame
+	# 3. Synchronize visuals, areas, and CSG physical aperture (with dirty-check guards)
 	_sync_visuals_and_areas()
 	_sync_hole_geometry()
 
@@ -76,15 +95,27 @@ func _physics_process(delta: float) -> void:
 	# 5. Process submerging collectibles until they fully drop into the hole
 	_process_submerging_collectibles()
 
-func _sync_hole_geometry() -> void:
+func _sync_hole_geometry(force: bool = false) -> void:
 	if not _hole_cutout:
 		_find_hole_cutout()
 
-	if _hole_cutout:
-		_hole_cutout.position.x = global_position.x
-		_hole_cutout.position.z = global_position.z
-		_hole_cutout.position.y = -2.0
-		_hole_cutout.radius = hole_radius
+	var pos_changed := global_position.distance_squared_to(_last_synced_pos) > 0.0001
+	var radius_changed := absf(hole_radius - _last_synced_radius) > 0.001
+
+	if force or pos_changed or radius_changed:
+		_last_synced_pos = global_position
+		_last_synced_radius = hole_radius
+
+		if _hole_cutout:
+			_hole_cutout.position.x = global_position.x
+			_hole_cutout.position.z = global_position.z
+			_hole_cutout.position.y = -2.0
+			_hole_cutout.radius = hole_radius
+
+		for mat in hole_shader_materials:
+			if mat:
+				mat.set_shader_parameter("hole_pos", global_position)
+				mat.set_shader_parameter("hole_radius", hole_radius)
 
 func _wake_nearby_bodies() -> void:
 	if not wake_area:
@@ -95,7 +126,11 @@ func _wake_nearby_bodies() -> void:
 		if rb and rb.sleeping:
 			rb.sleeping = false
 
-func _sync_visuals_and_areas() -> void:
+func _sync_visuals_and_areas(force: bool = false) -> void:
+	if not force and absf(hole_radius - _last_synced_visual_radius) <= 0.001:
+		return
+
+	_last_synced_visual_radius = hole_radius
 	var scale_factor: float = hole_radius / 1.25
 
 	if visuals:

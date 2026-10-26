@@ -14,7 +14,7 @@ func _ready() -> void:
 		global_position = target.global_position + base_offset
 		look_at(target.global_position + look_target_offset, Vector3.UP)
 
-func _physics_process(delta: float) -> void:
+func _process(delta: float) -> void:
 	if not is_instance_valid(target):
 		_find_target()
 		if not is_instance_valid(target):
